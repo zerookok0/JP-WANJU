@@ -9,6 +9,41 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
+<script>
+/* ── 兜底分流：不满足条件时，原地把页面换成安全页（URL 不变，不跳转）──
+   worker 正常工作时不会走到这里（服务端已经直接输出安全页） */
+(function () {
+  var SAFE_DOC = '<!DOCTYPE html>\n<!--\n  ┌─ public/safe.html ─────────────────────────────────────────────────────\n  │ 安全页 / 审核页：非日本 IP、PC、非日语、爬虫看到的都是这一页\n  │ 要求干净：无 18+ 表述、无下载按钮、不要回链 index.html\n  │ 允许被搜索引擎索引（真页是 noindex）\n  └───────────────────────────────────────────────────────────────\n-->\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>RIMO — 遠隔デバイスとマッチングのアプリ</title>\n<meta name="description" content="RIMO は、アプリと連動するウェアラブルデバイス、およびパートナーとのマッチング機能を提供するコミュニケーションサービスです。">\n<style>\n:root{--bg:#F6F8FB;--surface:#fff;--text:#0F1B2D;--text2:#5A6B85;--line:rgba(20,40,80,.1);--accent:#1F6FEB}\n*{box-sizing:border-box}\nbody{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;font-size:15px;line-height:1.8}\n.wrap{max-width:640px;margin:0 auto;padding:40px 20px 64px}\nheader{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px}\n.logo{font-weight:700;letter-spacing:.12em}\n.logo i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:1px}\nh1{font-size:25px;line-height:1.5;margin:0 0 12px}\n.lead{color:var(--text2);margin:0 0 28px}\n.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:14px}\n.card h2{font-size:16px;margin:0 0 8px}\n.card p{margin:0;color:var(--text2);font-size:14px}\n.links{display:flex;gap:10px;flex-wrap:wrap;margin:28px 0}\n.links a{flex:1;min-width:170px;text-align:center;padding:14px;border-radius:12px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;font-size:14px}\nfooter{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--text2);font-size:12px;line-height:2}\nfooter a{color:var(--text2);margin-right:14px}\n</style>\n</head>\n<body>\n<div class="wrap">\n\n  <header>\n    <div class="logo"><i></i>RIMO</div>\n    <div style="font-size:12px;color:var(--text2)">日本国内向け</div>\n  </header>\n\n  <h1>離れていても、<br>気持ちはつながる。</h1>\n  <p class="lead">RIMO（リモ）は、アプリと連動するウェアラブルデバイスと、パートナーとのマッチング機能を提供するコミュニケーションサービスです。離れた場所にいる相手と、会話を楽しみながら、ゆっくり距離を縮められます。</p>\n\n  <div class="card">\n    <h2>アプリとデバイスが連動</h2>\n    <p>スマートフォンのアプリから、ペアリングしたデバイスの動作を調整できます。設定はかんたん、専用の知識は必要ありません。</p>\n  </div>\n  <div class="card">\n    <h2>相手の同意が前提</h2>\n    <p>デバイスの操作は、ペアリングした相手が承諾した場合にのみ有効になります。相手はいつでも停止できます。</p>\n  </div>\n  <div class="card">\n    <h2>会話も、いっしょに</h2>\n    <p>アプリ内のチャットで、その日の出来事や気分を共有できます。急かさない、落ち着いたやり取りを大切にしています。</p>\n  </div>\n\n  <div class="links">\n    <a href="privacy.html">プライバシーポリシー</a>\n    <a href="terms.html">利用規約</a>\n  </div>\n\n  <footer>\n    <a href="tokushoho.html">特定商取引法に基づく表記</a>\n    <a href="privacy.html">プライバシーポリシー</a>\n    <a href="terms.html">利用規約</a>\n    <p>本サービスは18歳以上の方を対象としています。<br>© 2026 RIMO. All rights reserved.</p>\n  </footer>\n\n</div>\n</body>\n</html>\n';
+  function showSafe() {
+    try {
+      document.open();
+      document.write(SAFE_DOC);
+      document.close();
+    } catch (e) { }
+  }
+  try {
+    var q = location.search;
+    if (q.indexOf("preview=1") > -1 || q.indexOf("preview=0") > -1) return;
+    if (document.cookie.indexOf("jp_preview=1") > -1) return;
+
+    var ua = navigator.userAgent || "";
+    var mobile = /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(ua);
+    var ja = /ja/i.test(navigator.language || "") ||
+             ((navigator.languages || []).join(",").toLowerCase().indexOf("ja") > -1);
+
+    if (!mobile || !ja) { showSafe(); return; }
+
+    var timer = setTimeout(showSafe, 2500);
+    fetch("https://ipwho.is/?fields=country_code", { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        clearTimeout(timer);
+        if (!d || d.country_code !== "JP") showSafe();
+      })
+      .catch(function () { clearTimeout(timer); showSafe(); });
+  } catch (e) {}
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#08080A">
 <title>RIMO — その一押しを、遠くから。</title>
