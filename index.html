@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<!--
+  ┌─ index.html ─────────────────────────────────────────────────────
+  │ 落地页本体：文案 / 卡片 / 弹窗 / 前端事件都在这里
+  │ 下载链接、FB 像素、LINE ID 不放这里 → 改 public/config.js
+  │ 上线：git push → Cloudflare Pages 自动构建（npm run build → dist）
+  └───────────────────────────────────────────────────────────────
+-->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08080A">
+<title>RIMO — その一押しを、遠くから。</title>
+<meta name="description" content="全国の女性とマッチング。お互いの同意が取れた瞬間、あなたの指先がスイッチになる。Android専用・登録なし。">
+<meta property="og:title" content="RIMO — その一押しを、遠くから。">
+<meta property="og:description" content="同意が取れた相手だけを、遠くから動かす。">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#08080A;
+  --bg2:#0E0E12;
+  --surface:#14141A;
+  --surface2:#1B1B23;
+  --line:rgba(255,255,255,.08);
+  --text:#F2F2F5;
+  --text2:#8A8A96;
+  --pink:#FF3F6E;
+  --pink-dim:#B0274B;
+  --green:#2BE39A;
+  --radius:16px;
+  --font:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --display:"Zen Kaku Gothic New","Noto Sans JP","Hiragino Sans",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--font);
+  font-size:15px;line-height:1.75;letter-spacing:.02em;
+  overflow-x:hidden;padding-bottom:calc(92px + env(safe-area-inset-bottom));
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(55% 32% at 50% -4%, rgba(255,63,110,.22), transparent 72%),
+    radial-gradient(40% 26% at 88% 44%, rgba(43,227,154,.07), transparent 70%);
+}
+.wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 18px}
+h1,h2,h3{font-family:var(--display);line-height:1.34;letter-spacing:.035em;margin:0}
+p{margin:0}
+section{padding:52px 0 0}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
+.sec-head h2{font-size:20px;font-weight:700}
+.sec-head span{font-size:11px;color:var(--text2);letter-spacing:.1em;white-space:nowrap}
+
+/* ── ヘッダー ── */
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 0 4px}
+.brand{display:flex;align-items:center;gap:7px;font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.14em}
+.brand i{width:7px;height:7px;border-radius:50%;background:var(--pink);box-shadow:0 0 12px var(--pink)}
+.tagline{font-size:10px;color:var(--text2);letter-spacing:.16em}
+
+/* ── ヒーロー ── */
+.hero{padding-top:16px;padding-bottom:14px;text-align:center}
+.hero .kicker{
+  display:inline-flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.22em;
+  color:var(--pink);border:1px solid rgba(255,63,110,.3);border-radius:999px;padding:5px 12px;
+}
+.hero .kicker b{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.hero h1{margin-top:18px;font-size:clamp(27px,7.6vw,36px);font-weight:800;line-height:1.28}
+.hero h1 em{font-style:normal;color:var(--pink)}
+.hero .sub{margin-top:12px;color:var(--text2);font-size:13.5px;line-height:1.85}
+
+/* リモコン */
+.remote-stage{position:relative;margin:20px auto 0;width:min(40vw,138px)}
+.remote-stage::before{
+  content:"";position:absolute;inset:-14% -34%;border-radius:50%;
+  background:radial-gradient(closest-side, rgba(255,63,110,.26), transparent 72%);
+  filter:blur(6px);z-index:-1;
+}
+svg.remote{width:100%;height:auto;display:block}
+.led{animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.35}50%{opacity:1}}
+.pulse{transform-origin:100px 158px;animation:pulse 2.6s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.92);opacity:.55}70%{transform:scale(1.22);opacity:0}100%{opacity:0}}
+.levelbar{transition:width .5s cubic-bezier(.16,1,.3,1)}
+.remote .btn-core{cursor:pointer}
+
+.live{
+  display:inline-flex;align-items:center;gap:8px;margin-top:20px;
+  font-size:12px;color:var(--text);background:rgba(43,227,154,.08);
+  border:1px solid rgba(43,227,154,.24);border-radius:999px;padding:7px 14px;
+}
+.live b{color:var(--green);font-variant-numeric:tabular-nums;font-size:15px;font-weight:700}
+.live .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.8s infinite}
+
+/* ボタン */
+.cta{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;height:56px;margin-top:20px;border:0;border-radius:14px;
+  background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff;
+  font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:.06em;
+  cursor:pointer;box-shadow:0 10px 30px rgba(224,30,79,.28);
+  transition:transform .15s ease,box-shadow .2s ease;
+}
+.cta:active{transform:translateY(1px);box-shadow:0 4px 14px rgba(224,30,79,.24)}
+.cta.ghost{background:transparent;color:var(--text);border:1px solid var(--line);box-shadow:none;height:50px;font-size:15px;font-weight:600}
+.cta[disabled]{opacity:.75}
+.note{text-align:center;color:var(--text2);font-size:11px;margin-top:10px;letter-spacing:.04em}
+
+/* ── 女性グリッド ── */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.girl{
+  position:relative;border-radius:13px;overflow:hidden;background:var(--surface);
+  border:1px solid var(--line);cursor:pointer;
+  transition:transform .18s ease,border-color .2s ease;
+}
+.girl:active{transform:scale(.975)}
+.girl .ph{position:relative;aspect-ratio:3/4;background:
+  linear-gradient(160deg,#2A1E28,#16121A 60%,#0F0D12);overflow:hidden}
+.girl .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.girl .sil{position:absolute;inset:auto 0 0 0;width:100%;height:78%;fill:rgba(255,255,255,.075);z-index:0}
+.girl .ph img+z?{}
+.badge{
+  position:absolute;top:6px;right:6px;z-index:2;
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:8.5px;font-weight:700;letter-spacing:.04em;
+  padding:3px 6px;border-radius:5px;backdrop-filter:blur(6px);
+}
+.badge i{width:4.5px;height:4.5px;border-radius:50%}
+.badge--idle{background:rgba(43,227,154,.16);color:var(--green);border:1px solid rgba(43,227,154,.34)}
+.badge--idle i{background:var(--green);box-shadow:0 0 6px var(--green)}
+.badge--busy{background:rgba(255,63,110,.16);color:var(--pink);border:1px solid rgba(255,63,110,.34)}
+.badge--busy i{background:var(--pink)}
+.girl .meta{padding:7px 8px 9px}
+.girl .nm{font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.girl .nm small{font-weight:400;color:var(--text2);font-size:10px;margin-left:3px}
+.girl .sc{font-size:9.5px;color:var(--text2);line-height:1.5;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ask{
+  display:block;width:100%;margin-top:7px;padding:6px 0;
+  border-radius:8px;border:1px solid rgba(255,63,110,.42);
+  background:rgba(255,63,110,.13);color:#FF8AA4;
+  font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:.02em;
+  cursor:pointer;transition:background .18s ease,border-color .18s ease;
+}
+.ask:active{background:rgba(255,63,110,.24)}
+.ask.busy{
+  border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+  color:#A2A6B4;cursor:pointer;
+}
+.ask.busy:active{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.24)}
+.grid-note{margin-top:12px;font-size:11px;color:var(--text2);line-height:1.7}
+
+/* ── ステップ ── */
+.steps{counter-reset:s;margin:0;padding:0;list-style:none}
+.steps li{counter-increment:s;position:relative;padding:0 0 22px 44px}
+.steps li::before{
+  content:counter(s);position:absolute;left:0;top:1px;width:27px;height:27px;
+  display:grid;place-items:center;border-radius:50%;
+  background:rgba(255,63,110,.12);color:var(--pink);font-size:12px;font-weight:700;
+}
+.steps li::after{content:"";position:absolute;left:13px;top:31px;bottom:6px;width:1px;background:var(--line)}
+.steps li:last-child::after{display:none}
+.steps b{display:block;font-size:15px;margin-bottom:3px;letter-spacing:.02em}
+.steps p{font-size:12.5px;color:var(--text2);line-height:1.72}
+
+/* ── デモ ── */
+.demo{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.demo .row{display:flex;align-items:center;justify-content:space-between;margin-top:16px}
+.demo .lbl{font-size:11px;color:var(--text2);letter-spacing:.1em}
+.switch{
+  position:relative;width:64px;height:34px;border-radius:999px;border:1px solid var(--line);
+  background:var(--surface2);cursor:pointer;transition:background .25s ease,border-color .25s;
+}
+.switch::after{
+  content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;
+  background:#4A4A55;transition:transform .28s cubic-bezier(.16,1,.3,1),background .25s;
+}
+.switch.on{background:rgba(255,63,110,.2);border-color:rgba(255,63,110,.5)}
+.switch.on::after{transform:translateX(30px);background:var(--pink);box-shadow:0 0 14px var(--pink)}
+.demo .stat{font-size:12px;color:var(--text2);margin-top:14px;min-height:20px}
+.demo .stat b{color:var(--pink)}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;
+  background:var(--surface2);outline:none;margin-top:8px;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--pink);box-shadow:0 0 12px rgba(255,63,110,.6);cursor:pointer;
+}
+.demo-hint{font-size:10.5px;color:var(--text2);margin-top:12px}
+
+/* ── 機能 ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.feat{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:15px}
+.feat .n{font-family:var(--display);font-size:19px;font-weight:800;color:var(--pink);letter-spacing:.02em}
+.feat h3{font-size:13px;margin-top:6px;font-weight:700}
+.feat p{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.65}
+
+/* ── 同意 ── */
+.consent{border:1px solid rgba(43,227,154,.22);background:rgba(43,227,154,.045);border-radius:var(--radius);padding:20px}
+.consent h2{font-size:17px;color:var(--green)}
+.consent p{margin-top:10px;font-size:12.5px;color:#C9C9D2;line-height:1.8}
+.consent ul{margin:12px 0 0;padding-left:16px;color:var(--text2);font-size:12px;line-height:1.9}
+
+/* ── 最終CTA ── */
+.final{text-align:center;padding-bottom:8px}
+.final h2{font-size:22px;line-height:1.45}
+.final .sub{margin-top:10px;color:var(--text2);font-size:12.5px}
+
+/* ── フッター ── */
+footer.legal{padding:34px 0 24px;color:var(--text2);font-size:11px;line-height:2.1}
+footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid var(--line);margin-right:12px}
+.disclaimer{margin-top:14px;color:#61616C}
+
+/* ── 固定バー ── */
+.bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  padding:10px 18px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(8,8,10,.94);backdrop-filter:blur(14px);border-top:1px solid var(--line);
+}
+.bar .inner{max-width:480px;margin:0 auto;display:flex;gap:9px;align-items:center}
+.bar .cta{margin:0;height:50px;font-size:16px}
+.bar .mini{flex:0 0 auto;font-size:10px;color:var(--text2);line-height:1.4;text-align:center}
+
+/* ── 年齢ゲート ── */
+#gate{position:fixed;inset:0;z-index:100;display:none;place-items:center;background:rgba(4,4,6,.97);padding:24px;text-align:center}
+#gate.on{display:grid}
+#gate h2{font-size:19px}
+#gate p{color:var(--text2);font-size:12.5px;margin-top:12px;line-height:1.9}
+#gate .row{display:flex;gap:9px;margin-top:22px;width:100%;max-width:320px}
+#gate button{flex:1;height:50px;border-radius:12px;border:0;font-size:15px;font-weight:700;cursor:pointer}
+#gate .yes{background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff}
+#gate .no{background:transparent;color:var(--text2);border:1px solid var(--line)}
+
+/* ── シート ── */
+#sheet{position:fixed;inset:0;z-index:110;display:none;align-items:flex-end;background:rgba(0,0,0,.66)}
+#sheet.on{display:flex}
+#sheet .panel{width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto;border-top:1px solid var(--line)}
+#sheet .ttl{display:flex;align-items:center;gap:10px}
+#sheet .ttl h3{font-size:16px}
+#sheet .st{font-size:10px;padding:2px 7px;border-radius:5px;white-space:nowrap;font-weight:700}
+#sheet .st.idle{background:rgba(43,227,154,.16);color:var(--green);border:1px solid rgba(43,227,154,.34)}
+#sheet .st.busy{background:rgba(255,63,110,.16);color:var(--pink);border:1px solid rgba(255,63,110,.34)}
+#sheet .sh-body{color:var(--text2);font-size:12.5px;margin-top:12px;white-space:pre-line;line-height:1.8}
+
+/* ── Play プロテクト警告の再現 ── */
+.mock{background:#1E1E24;border:1px solid #30303A;border-radius:12px;padding:14px;margin-top:12px}
+.mock .m-top{font-size:9.5px;color:#8A8A96;letter-spacing:.1em}
+.mock .m-title{font-size:13px;font-weight:700;color:#F2F2F5;margin-top:8px;line-height:1.55}
+.mock .m-note{font-size:10.5px;color:#8A8A96;margin-top:6px;line-height:1.65}
+.mock .m-btns{display:flex;gap:8px;margin-top:12px}
+.mock .m-btn{flex:1;text-align:center;font-size:11px;padding:7px 0;border-radius:8px;background:#26262E;color:#C9C9D2}
+.mock .m-btn.primary{background:rgba(43,227,154,.16);color:var(--green);border:1px solid rgba(43,227,154,.35)}
+.warnbox{background:rgba(255,63,110,.05);border:1px solid rgba(255,63,110,.22);border-radius:14px;padding:16px;margin-bottom:20px}
+.warnbox h3{font-size:13.5px;color:#FF8AA4;display:flex;align-items:center;gap:6px}
+.warnbox h3 svg{width:15px;height:15px;flex:0 0 auto}
+.warnbox p{font-size:11.5px;color:var(--text2);line-height:1.8;margin-top:8px}
+.warnbox .fix{margin-top:10px;font-size:11.5px;color:#C9C9D2;line-height:1.9}
+.warnbox .fix b{color:var(--text)}
+
+/* ダウンロード確認シート */
+.dlwarn-h{font-size:13px;font-weight:700;color:#FF8AA4;margin-bottom:8px}
+.dlwarn p{font-size:12px;color:#B9B9C4;line-height:1.85;margin-top:8px}
+.dlwarn .dlwarn-fix{color:#F2F2F5;margin-top:12px}
+.dlwarn .dlwarn-fix b{color:#FF8AA4}
+.dlwarn .dlwarn-meta{margin-top:12px;font-size:10.5px;color:#6E6E7A;letter-spacing:.02em}
+#sheet .actions{display:flex;gap:9px;margin-top:18px}
+#sheet button{flex:1;height:48px;border-radius:12px;border:0;font-size:14px;font-weight:700;cursor:pointer}
+#sheet .close{background:var(--surface2);color:var(--text2);flex:0 0 92px}
+#sheet .go{background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff}
+
+/* ── 覗き見ビューア（閲覧のみ） ── */
+#viewer{position:fixed;inset:0;z-index:120;display:none;background:#06060A;overflow-y:auto}
+#viewer.on{display:block}
+#viewer .vwrap{max-width:480px;margin:0 auto;padding:16px 18px calc(24px + env(safe-area-inset-bottom))}
+.vhead{display:flex;align-items:center;gap:9px;padding:6px 0 14px}
+.vname{font-family:var(--display);font-size:14px;font-weight:700}
+.vrbadge{font-size:9.5px;letter-spacing:.06em;padding:3px 7px;border-radius:5px;
+  background:rgba(255,255,255,.07);color:#A2A6B4;border:1px solid rgba(255,255,255,.14)}
+.vclose{margin-left:auto;width:32px;height:32px;border-radius:50%;border:0;
+  background:rgba(255,255,255,.07);color:var(--text2);font-size:17px;cursor:pointer;line-height:1}
+.vstage{position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;
+  background-color:#1A1119;background-size:cover;background-position:center top;
+  border:1px solid rgba(255,255,255,.07)}
+.vstage .vsil{position:absolute;left:0;right:0;bottom:0;width:100%;height:88%;
+  fill:rgba(255,255,255,.14);filter:blur(2.5px);transition:opacity .4s ease}
+.vstage::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg, rgba(8,8,12,.35) 0%, rgba(8,8,12,.15) 45%, rgba(6,6,10,.75) 100%);
+  backdrop-filter:blur(3px) saturate(1.15)}
+.vstage::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)}
+.vstage .vgrain{position:absolute;inset:0;z-index:1;background:
+  radial-gradient(circle at 30% 70%, rgba(255,63,110,.16), transparent 55%),
+  radial-gradient(circle at 72% 34%, rgba(43,227,154,.08), transparent 50%)}
+.vlive{position:absolute;top:10px;left:10px;z-index:3;display:inline-flex;align-items:center;gap:5px;
+  font-size:9px;font-weight:700;letter-spacing:.1em;color:#fff;
+  background:rgba(255,63,110,.9);padding:3px 7px;border-radius:4px}
+.vlive i{width:4px;height:4px;border-radius:50%;background:#fff;animation:blink 1.4s infinite}
+.vtime{position:absolute;top:10px;right:10px;z-index:3;font-size:9px;letter-spacing:.08em;color:#C9C9D2;
+  background:rgba(0,0,0,.45);padding:3px 7px;border-radius:4px;font-variant-numeric:tabular-nums}
+.vnote{margin-top:16px;font-size:12.5px;color:var(--text2);line-height:1.85}
+.vnote b{color:#C9C9D2}
+.vremote{display:flex;align-items:center;gap:10px;margin-top:16px;padding:12px 14px;
+  background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.vremote .rl{font-size:10px;letter-spacing:.12em;color:var(--text2)}
+.vremote .sw{position:relative;width:46px;height:24px;border-radius:999px;
+  background:#22222A;border:1px solid var(--line);margin-left:auto}
+.vremote .sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;
+  border-radius:50%;background:#4A4A55}
+.vremote .lock{font-size:10px;color:#7A7A88;letter-spacing:.04em}
+.vactions{display:flex;gap:9px;margin-top:18px}
+.vactions button{flex:1;height:50px;border-radius:12px;border:0;font-size:14px;font-weight:700;cursor:pointer}
+.vactions .vclose2{flex:0 0 100px;background:var(--surface2);color:var(--text2)}
+.vactions .vgo{background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff}
+
+/* ── アプリ内ブラウザ警告 ── */
+#inapp{position:fixed;inset:0;z-index:130;display:none;place-items:center;padding:20px;
+  background:rgba(0,0,0,.74);backdrop-filter:blur(4px)}
+#inapp.on{display:grid}
+.ia-card{width:100%;max-width:420px;background:#15151C;border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.55)}
+.ia-card h3{font-size:16.5px;letter-spacing:.02em}
+.ia-card .lead{margin-top:10px;font-size:12.5px;color:var(--text2);line-height:1.85}
+.ia-steps{margin-top:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.05);
+  border-radius:12px;padding:14px 15px}
+.ia-steps div{font-size:12.5px;line-height:2;color:#C9C9D2}
+.ia-steps div b{color:#FF8AA4}
+.ia-actions{display:flex;gap:9px;margin-top:16px}
+.ia-actions button{flex:1;height:46px;border-radius:11px;border:0;font-size:13px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.ia-actions svg{width:15px;height:15px}
+.ia-open{background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff}
+.ia-copy{background:rgba(255,255,255,.06);color:#C9C9D2;border:1px solid rgba(255,255,255,.1)}
+.ia-later{display:block;width:100%;margin-top:12px;padding:10px 0;border:0;background:none;
+  color:#7C7C8A;font-family:var(--font);font-size:12px;letter-spacing:.02em;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.18)}
+.ia-later:active{color:#A2A6B4}
+.ia-toast{margin-top:11px;font-size:11px;color:var(--green);text-align:center;min-height:15px;letter-spacing:.02em}
+.ia-hint{margin-top:8px;font-size:10.5px;color:#6E6E7A;line-height:1.7;text-align:center}
+
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s cubic-bezier(.16,1,.3,1),transform .55s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  .led,.pulse,.live .dot{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><i></i>RIMO</div>
+    <div class="tagline">18+ / ANDROID</div>
+  </div>
+</div>
+
+<!-- ① ヒーロー -->
+<div class="wrap hero">
+  <span class="kicker"><b></b>LIVE MATCHING</span>
+  <h1>その一押しを、<br><em>遠くから。</em></h1>
+  <p class="sub">全国の女性とマッチング。<br>同意が取れたら、指先がスイッチになる。</p>
+
+  <div class="remote-stage">
+    <svg class="remote" viewBox="0 0 200 418" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="遠隔リモコン">
+      <defs>
+        <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#26262F"/><stop offset=".55" stop-color="#14141A"/><stop offset="1" stop-color="#0C0C10"/>
+        </linearGradient>
+        <radialGradient id="btn" cx=".35" cy=".3" r=".85">
+          <stop offset="0" stop-color="#FF7D9C"/><stop offset=".55" stop-color="#FF3F6E"/><stop offset="1" stop-color="#B0274B"/>
+        </radialGradient>
+        <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffffff" stop-opacity=".10"/><stop offset=".35" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+
+      <rect x="26" y="6" width="148" height="404" rx="48" fill="url(#body)" stroke="#3A3A46" stroke-width="1"/>
+      <rect x="26" y="6" width="148" height="404" rx="48" fill="url(#gloss)"/>
+
+      <circle class="led" cx="100" cy="40" r="4.5" fill="#2BE39A"/>
+      <rect x="76" y="57" width="48" height="3" rx="1.5" fill="#2A2A33"/>
+
+      <circle class="pulse" cx="100" cy="158" r="54" fill="none" stroke="#FF3F6E" stroke-width="1.4"/>
+      <circle class="btn-core" cx="100" cy="158" r="46" fill="url(#btn)"/>
+      <circle cx="100" cy="158" r="46" fill="none" stroke="#FF9FB5" stroke-opacity=".5" stroke-width="1"/>
+      <path d="M100 140v36M82 158h36" stroke="#3A0B1B" stroke-width="2.6" stroke-linecap="round" opacity=".55"/>
+
+      <rect x="66" y="232" width="68" height="7" rx="3.5" fill="#1C1C24"/>
+      <rect class="levelbar" x="66" y="232" width="24" height="7" rx="3.5" fill="#FF3F6E"/>
+
+      <circle cx="82" cy="278" r="13" fill="#1B1B23" stroke="#33333D"/>
+      <path d="M77 278h10" stroke="#8A8A96" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="118" cy="278" r="13" fill="#1B1B23" stroke="#33333D"/>
+      <path d="M113 278h10M118 273v10" stroke="#8A8A96" stroke-width="2" stroke-linecap="round"/>
+
+      <rect x="72" y="316" width="56" height="1" fill="#26262F"/>
+      <text x="100" y="352" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" letter-spacing="4" fill="#4A4A55">RIMO</text>
+      <circle cx="100" cy="382" r="3" fill="#2A2A33"/>
+    </svg>
+  </div>
+
+  <div class="live"><span class="dot"></span>ただいま空いている女性 <b id="liveCount">128</b> 人</div>
+
+  <p class="note">Android専用・登録なし　／　18歳以上</p>
+</div>
+
+<!-- ② 女性グリッド -->
+<div class="wrap">
+  <section class="reveal">
+    <div class="sec-head">
+      <h2>いま、声をかけられる女性</h2>
+      <span>LIVE</span>
+    </div>
+    <div class="grid3" id="girls"></div>
+    <p class="grid-note">全員が事前に同意済み。あなたからの操作は、相手の承諾があってはじめて有効になります。</p>
+  </section>
+</div>
+
+<!-- ③ ステップ -->
+<div class="wrap">
+  <section class="reveal">
+    <div class="sec-head"><h2>遊びかた</h2><span>3 STEPS</span></div>
+    <ol class="steps">
+      <li>
+        <b>空いている相手を選ぶ</b>
+        <p>緑の「空いてる」が、いま声をかけられる女性です。仕事中、散歩中、友人と買い物中——みんな、いつもの一日の途中にいます。</p>
+      </li>
+      <li>
+        <b>「いま、いい？」と聞く</b>
+        <p>チャットで一言。断られたら、それで終わりです。しつこくすると、アカウントが止まります。</p>
+      </li>
+      <li>
+        <b>同意が取れたら、スイッチが入る</b>
+        <p>相手が承諾した瞬間、あなたの画面のスイッチが有効になります。強さも、リズムも、遠くから。</p>
+      </li>
+    </ol>
+  </section>
+</div>
+
+<!-- ④ デモ -->
+<div class="wrap">
+  <section class="reveal">
+    <div class="sec-head"><h2>スイッチを、ためしてみる</h2><span>DEMO</span></div>
+    <div class="demo">
+      <div class="row">
+        <span class="lbl">REMOTE</span>
+        <button class="switch" id="sw" aria-label="リモートスイッチ"></button>
+      </div>
+      <div class="row" style="margin-top:18px">
+        <span class="lbl">STRENGTH</span>
+        <span class="lbl" id="strVal">2 / 5</span>
+      </div>
+      <input type="range" id="str" min="1" max="5" value="2" step="1">
+      <p class="stat" id="demoStat">待機中。マッチングすると、ここが動き出します。</p>
+      <p class="demo-hint">※ここは体験用のダミーです。実際の操作は、相手の同意後にはじめて可能になります。</p>
+    </div>
+  </section>
+</div>
+
+<!-- ⑤ 機能 -->
+<div class="wrap">
+  <section class="reveal">
+    <div class="sec-head"><h2>RIMOである理由</h2><span>FEATURES</span></div>
+    <div class="grid2">
+      <div class="feat"><div class="n">0.2<span style="font-size:11px">秒</span></div><h3>ほぼ、その場</h3><p>遠隔でも、指の動きと反応がずれない。</p></div>
+      <div class="feat"><div class="n">100<span style="font-size:11px">%</span></div><h3>同意が前提</h3><p>全員が事前同意。いつでも停止できます。</p></div>
+      <div class="feat"><div class="n">0<span style="font-size:11px">円</span></div><h3>無料で使える</h3><p>ダウンロードも利用も、すべて無料です。</p></div>
+      <div class="feat"><div class="n">24<span style="font-size:11px">h</span></div><h3>いつでも空いてる</h3><p>深夜も早朝も、誰かがつながっています。</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- ⑥ 同意 -->
+<div class="wrap">
+  <section class="reveal">
+    <div class="consent">
+      <h2>合意なくして、このアプリは動きません。</h2>
+      <p>RIMOは「遠くから操作する」ためのアプリですが、操作できるのは、相手がその瞬間に承諾したときだけです。</p>
+      <ul>
+        <li>相手が承諾したときだけ、スイッチが有効になります</li>
+        <li>相手はいつでも、手元のボタンひとつで停止できます</li>
+        <li>強要・つきまとい・嫌がらせは、即アカウント停止</li>
+        <li>会話と操作ログは暗号化して保存されます</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<!-- ⑦ インストール -->
+<div class="wrap">
+  <section class="reveal">
+    <div class="sec-head"><h2>インストール方法</h2><span>30秒</span></div>
+
+    <ol class="steps">
+      <li><b>「ダウンロード」をタップ</b><p>ファイルの保存が始まります。</p></li>
+      <li><b>通知、またはファイルアプリから開く</b><p>ダウンロードフォルダに app-latest.apk があります。</p></li>
+      <li><b>「提供元不明のアプリ」を許可</b><p>設定 → セキュリティ → 提供元不明のアプリ をON。</p></li>
+      <li><b>「インストール」→「開く」</b><p>数秒で完了します。</p></li>
+    </ol>
+  </section>
+</div>
+
+<!-- ⑧ 最終CTA -->
+<div class="wrap">
+  <section class="final reveal">
+    <h2>今夜、だれかが<br>空いています。</h2>
+    <p class="sub">画面下のボタンから、無料でダウンロードできます。</p>
+  </section>
+</div>
+
+<!-- ⑨ フッター -->
+<div class="wrap">
+  <footer class="legal">
+    <a href="tokushoho.html">特定商取引法に基づく表記</a>
+    <a href="privacy.html">プライバシーポリシー</a>
+    <a href="terms.html">利用規約</a>
+    <a href="mailto:support@example.com">お問い合わせ</a>
+    <p class="disclaimer">
+      18歳未満の方はご利用いただけません。本サービスは成人向けの遠隔操作デバイスおよびマッチング機能を提供するものです。<br>
+      すべての操作は、相手方の明示的な同意を得た場合にのみ行えます。<br>
+      © 2026 RIMO. All rights reserved.
+    </p>
+  </footer>
+</div>
+
+<!-- 固定バー -->
+<div class="bar">
+  <div class="inner">
+    <div class="mini">18+<br>限定</div>
+    <button class="cta" id="dl3">無料ダウンロード</button>
+  </div>
+</div>
+
+<!-- 年齢ゲート -->
+<div id="gate">
+  <div>
+    <h2>年齢確認</h2>
+    <p>このページは成人向けの内容を含みます。<br>18歳以上ですか？</p>
+    <div class="row">
+      <button class="no" id="gateNo">いいえ</button>
+      <button class="yes" id="gateYes">はい</button>
+    </div>
+  </div>
+</div>
+
+<!-- シート -->
+<div id="sheet">
+  <div class="panel">
+    <div class="ttl">
+      <h3 id="shName"></h3>
+      <span class="st" id="shStatus"></span>
+    </div>
+    <div id="shBody" class="sh-body"></div>
+    <div class="actions">
+      <button class="close" id="shClose">閉じる</button>
+      <button class="go" id="shGo">声をかける</button>
+    </div>
+  </div>
+</div>
+
+<!-- 覗き見ビューア（閲覧のみ・操作権限なし） -->
+<div id="viewer">
+  <div class="vwrap">
+    <div class="vhead">
+      <span class="vname" id="vName"></span>
+      <span class="vrbadge">閲覧のみ</span>
+      <button class="vclose" id="vClose" aria-label="閉じる">×</button>
+    </div>
+    <div class="vstage">
+      <div class="vgrain"></div>
+      <svg class="vsil" viewBox="0 0 100 133" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <circle cx="50" cy="40" r="17"/>
+        <path d="M50 62c-17 0-28 11-30 27l-4 44h68l-4-44c-2-16-13-27-30-27z"/>
+      </svg>
+      <span class="vlive"><i></i>LIVE</span>
+      <span class="vtime" id="vTime">00:00</span>
+    </div>
+    <p class="vnote">
+      いまは他の方とマッチング中です。<br>
+      <b>画面は見られますが、リモコンの操作権限はありません。</b><br>
+      相手が空くと、操作できるようになります。
+    </p>
+    <div class="vremote">
+      <span class="rl">REMOTE</span>
+      <span class="sw" aria-hidden="true"></span>
+      <span class="lock">権限なし</span>
+    </div>
+    <div class="vactions">
+      <button class="vclose2" id="vClose2">閉じる</button>
+      <button class="vgo" id="vGo">アプリをダウンロード</button>
+    </div>
+  </div>
+</div>
+
+<!-- アプリ内ブラウザ警告（Facebook / Instagram / LINE） -->
+<div id="inapp">
+  <div class="ia-card">
+    <h3>ブラウザで開いてください</h3>
+    <p class="lead">Facebook アプリ内では、アプリをダウンロードできません。<br>ブラウザで開くと、そのままダウンロードとインストールに進めます。</p>
+    <div class="ia-steps">
+      <div>1. 右上の「…」（メニュー）をタップ</div>
+      <div>2. <b>「ブラウザで開く」</b>を選ぶ</div>
+    </div>
+    <div class="ia-actions">
+      <button class="ia-open" id="iaOpen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/>
+        </svg>
+        自動で開いてみる
+      </button>
+      <button class="ia-copy" id="iaCopy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        リンクをコピー
+      </button>
+    </div>
+    <button class="ia-later" id="iaLater">あとで（このまま見る）</button>
+    <p class="ia-toast" id="iaToast"></p>
+    <p class="ia-hint">自動で開かない場合は、コピーしたリンクを Chrome に貼り付けてください。</p>
+  </div>
+</div>
+
+<script src="config.js" onerror="window.JP_CONFIG=null"></script>
+<script>
+(function () {
+  var CFG = window.JP_CONFIG || {};
+  var DL = CFG.DOWNLOAD_URL || "/dl/app-latest.apk";
+  var ua = navigator.userAgent;
+  var isAndroid = /Android/i.test(ua);
+  var inApp = /MicroMessenger|Line\/|Instagram|FBAN|FBAV|FB_IAB|Twitter|KAKAOTALK|NAVER/i.test(ua);
+  var androidVer = parseFloat((ua.match(/Android\s([\d.]+)/) || [])[1] || 0);
+
+  /* ── 女性データ ── */
+  var GIRLS = [
+    { n: "あかり", a: 34, s: "仕事中", idle: true },
+    { n: "みさき", a: 38, s: "散歩中", idle: false },
+    { n: "ゆかり", a: 41, s: "友人と買い物", idle: true },
+    { n: "なおみ", a: 36, s: "カフェで一息", idle: true },
+    { n: "さえ",   a: 43, s: "帰り道", idle: false },
+    { n: "ともこ", a: 39, s: "ランチ中", idle: true },
+    { n: "りえ",   a: 32, s: "ジムのあと", idle: true },
+    { n: "かおり", a: 45, s: "仕事中", idle: true },
+    { n: "まゆ",   a: 37, s: "友人と食事", idle: false }
+  ];
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+
+  var SIL = '<svg class="sil" viewBox="0 0 100 133" preserveAspectRatio="xMidYMax slice" aria-hidden="true">' +
+            '<circle cx="50" cy="40" r="17"/>' +
+            '<path d="M50 62c-17 0-28 11-30 27l-4 44h68l-4-44c-2-16-13-27-30-27z"/></svg>';
+
+  var grid = document.getElementById("girls");
+  GIRLS.forEach(function (g, i) {
+    var el = document.createElement("div");
+    var no = String(i + 1).padStart(2, "0");
+    var base = "assets/girls/" + no;
+    el.className = "girl";
+    el.dataset.i = i;
+    el.innerHTML =
+      '<div class="ph">' +
+        '<img src="' + base + '.jpg" alt="' + esc(g.n) + '" loading="lazy">' +
+        SIL +
+        '<span class="badge ' + (g.idle ? "badge--idle" : "badge--busy") + '"><i></i>' + (g.idle ? "空いてる" : "マッチング中") + '</span>' +
+      '</div>' +
+      '<div class="meta">' +
+        '<div class="nm">' + esc(g.n) + '</div>' +
+        '<div class="sc">' + esc(g.s) + '</div>' +
+      '</div>' +
+      '<button class="ask' + (g.idle ? '' : ' busy') + '" data-ask="1">' +
+        (g.idle ? '同意を求める' : '覗き見る') +
+      '</button>';
+
+    /* 画像は jpg → png → webp の順に探し、無ければシルエット表示 */
+    var img = el.querySelector("img");
+    if (img) {
+      img.addEventListener("error", function () {
+        var step = this.dataset.step || "1";
+        if (step === "1") { this.dataset.step = "2"; this.src = base + ".png"; }
+        else if (step === "2") { this.dataset.step = "3"; this.src = base + ".webp"; }
+        else { this.remove(); }
+      });
+    }
+    grid.appendChild(el);
+  });
+
+  /* ── 年齢ゲート ── */
+  function initPixel() {
+    if (!CFG.FB_PIXEL_ID || CFG.FB_PIXEL_ID.indexOf("0000") === 0) return;
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments) };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = [];
+      t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    }(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+    fbq("init", CFG.FB_PIXEL_ID); fbq("track", "PageView");
+  }
+  /* イベント送信
+     InitiateCheckout = 無料ボタン押下（結帳開始）
+     Purchase         = シート内のダウンロード押下（購買）
+     ※ 実課金がない場合は value / currency を 0 / JPY のままにしておく */
+  var DEBUG = /[?&]debug=1/.test(location.search);
+
+  function track(name) {
+    var params = { content_name: "jp_remote_apk", content_type: "product", currency: "JPY", value: 0 };
+    if (window.fbq) fbq("track", name || "Lead", params);
+    if (window.ttq) {
+      var ttMap = { InitiateCheckout: "InitiateCheckout", Purchase: "CompletePayment", Lead: "ClickButton" };
+      ttq.track(ttMap[name] || "ClickButton", { content_id: "jp_remote_apk" });
+    }
+    if (window.twq && CFG.X_PIXEL_ID) twq("event", CFG.X_PIXEL_ID, {});
+    if (DEBUG) console.log("[track]", name, params);
+  }
+
+  var gate = document.getElementById("gate");
+  var gateOn = CFG.AGE_GATE !== false;
+  if (gateOn && !localStorage.getItem("jp_age")) {
+    gate.classList.add("on"); document.body.style.overflow = "hidden";
+  } else {
+    if (gateOn) initPixel();
+    if (inApp) setTimeout(openInApp, 600);
+  }
+
+  document.getElementById("gateYes").onclick = function () {
+    localStorage.setItem("jp_age", "1");
+    gate.classList.remove("on"); document.body.style.overflow = "";
+    initPixel();
+    if (inApp) setTimeout(openInApp, 400);
+  };
+  document.getElementById("gateNo").onclick = function () { location.href = "https://www.google.com/"; };
+
+  /* ── シート ── */
+  var sheet = document.getElementById("sheet");
+  var shName = document.getElementById("shName");
+  var shStatus = document.getElementById("shStatus");
+  var shBody = document.getElementById("shBody");
+
+  var shGo = document.getElementById("shGo");
+  var sheetAction = "download";
+
+  function openSheet(o) {
+    /* 防御：アプリ内ブラウザでは DL 系シートを一切出さない */
+    if (inApp) { openInApp(true); return; }
+    shName.textContent = o.title;
+    if (o.status) {
+      shStatus.style.display = "";
+      shStatus.textContent = o.status;
+      shStatus.className = "st " + (o.statusClass || "idle");
+    } else {
+      shStatus.style.display = "none";
+    }
+    if (o.html) shBody.innerHTML = o.html;
+    else shBody.textContent = o.body || "";
+    shGo.textContent = o.cta || "アプリをダウンロード";
+    sheetAction = o.action || "download";
+    document.getElementById("shClose").style.display = o.hideClose ? "none" : "";
+    sheet.classList.add("on");
+  }
+  function closeSheet() { sheet.classList.remove("on"); }
+
+  /* ── 覗き見ビューア（閲覧のみ） ── */
+  var viewer = document.getElementById("viewer");
+  var vTimer = null;
+
+  function openViewer(g) {
+    document.getElementById("vName").textContent = g.n + "さん（" + g.s + "）";
+    var el = document.getElementById("vTime");
+    var sec = 0;
+    el.textContent = "00:00";
+
+    /* 相手の写真を背景に敷く（無ければシルエット） */
+    var stage = document.querySelector(".vstage");
+    var sil = stage.querySelector(".vsil");
+    var idx = GIRLS.indexOf(g) + 1;
+    var photo = "assets/girls/" + String(idx).padStart(2, "0") + ".jpg";
+    stage.style.backgroundImage = "none";
+    sil.style.opacity = "";
+    var probe = new Image();
+    probe.onload = function () {
+      stage.style.backgroundImage = 'url("' + photo + '")';
+      sil.style.opacity = "0";
+    };
+    probe.src = photo;
+
+    clearInterval(vTimer);
+    vTimer = setInterval(function () {
+      sec += 1;
+      el.textContent = String(Math.floor(sec / 60)).padStart(2, "0") + ":" + String(sec % 60).padStart(2, "0");
+    }, 1000);
+    viewer.classList.add("on");
+    document.body.style.overflow = "hidden";
+  }
+  function closeViewer() {
+    viewer.classList.remove("on");
+    document.body.style.overflow = "";
+    clearInterval(vTimer);
+  }
+  document.getElementById("vClose").onclick = closeViewer;
+  document.getElementById("vClose2").onclick = closeViewer;
+  document.getElementById("vGo").onclick = function () {
+    closeViewer();
+    openDownloadFlow();
+  };
+
+  grid.addEventListener("click", function (e) {
+    var card = e.target.closest(".girl");
+    if (!card) return;
+    var g = GIRLS[+card.dataset.i];
+    var pressedAsk = !!e.target.closest(".ask");
+
+    if (!g.idle) {
+      if (pressedAsk) { openViewer(g); return; }
+      openSheet({
+        title: g.n + "さん（" + g.s + "）",
+        status: "マッチング中",
+        statusClass: "busy",
+        body: "現在、他の方とマッチング中です。\n「覗き見る」から画面だけ見られます。操作権限はありません。",
+        cta: "覗き見る",
+        action: function () { openViewer(g); }
+      });
+      return;
+    }
+
+    if (pressedAsk) {
+      openSheet({
+        title: "アプリで続けてください",
+        body: "Web版では、リモコンの操作を開始できません。\n\n無駄なやり取りを避けるため、アプリをダウンロードしてから、会話とリモコン操作を始めてください。",
+        cta: "アプリをダウンロード",
+        action: "download"
+      });
+      return;
+    }
+
+    openSheet({
+      title: g.n + "さん（" + g.s + "）",
+      status: "空いてる",
+      statusClass: "idle",
+      body: "いま、声をかけられます。\n「いま、いい？」と送ってみてください。承諾が返ってきたら、スイッチが有効になります。",
+      cta: "同意を求める",
+      action: function () { openDownloadFlow(); }
+    });
+  });
+
+  document.getElementById("shClose").onclick = closeSheet;
+  shGo.onclick = function () {
+    var act = sheetAction;
+    closeSheet();
+    if (typeof act === "function") { act(); return; }
+    if (act === "close") return;
+    startDownload(document.getElementById("dl3"));
+  };
+
+  /* ── ダウンロード確認シート（唯一の DL 入口） ── */
+  var DL_SHEET_HTML =
+    '<div class="dlwarn">' +
+      '<div class="dlwarn-h">インストール時に警告が出ます</div>' +
+      '<p>Google Play 以外から取得したアプリのため、Android から「有害な可能性のあるアプリ」という警告が表示されます。これは外部アプリすべてに出る標準の警告で、ウイルスではありません。</p>' +
+      '<p class="dlwarn-fix">警告が出たら → <b>「詳細」</b> → <b>「インストールする」</b> を選んでください。</p>' +
+      '<p class="dlwarn-meta">所要時間 約30秒 ／ Android専用 ／ 無料</p>' +
+    '</div>';
+
+  function openDownloadFlow() {
+    /* ① 最優先：アプリ内ブラウザ（Facebook / Instagram / LINE …）
+          ここで止める。DL シートは絶対に出さない。 */
+    if (inApp) {
+      closeSheet();
+      openInApp(true);
+      return;
+    }
+    /* ② Android 以外は案内のみ（本アプリは Android 専用） */
+    if (!isAndroid) {
+      alert("Android専用アプリです。スマートフォン（Android）でご利用ください。");
+      return;
+    }
+    /* ③ Android 8.0 未満 */
+    if (isAndroid && androidVer && androidVer < 8) {
+      alert("Android 8.0以上が必要です。現在：" + androidVer);
+      return;
+    }
+    /* ④ ここから先はローカルブラウザだけ：結帳開始イベント */
+    track("InitiateCheckout");
+    openSheet({
+      title: "無料ダウンロード",
+      html: DL_SHEET_HTML,
+      cta: "ダウンロードする",
+      action: function () {
+        /* シート内のダウンロードボタン → 購買イベント
+           Pixel の送信が終わる前に遷移するとイベントが落ちるため、
+           300ms 待ってからダウンロードを開始する */
+        track("Purchase");
+        var btn = document.getElementById("dl3");
+        setTimeout(function () { startDownload(btn); }, 300);
+      }
+    });
+  }
+
+  /* ── デモスイッチ ── */
+  var sw = document.getElementById("sw");
+  var str = document.getElementById("str");
+  var strVal = document.getElementById("strVal");
+  var demoStat = document.getElementById("demoStat");
+  var bar = document.querySelector(".levelbar");
+  var on = false;
+
+  function paint() {
+    var v = +str.value;
+    strVal.textContent = v + " / 5";
+    if (bar) bar.setAttribute("width", String(10 + v * 9));
+    if (!on) { demoStat.innerHTML = "待機中。マッチングすると、ここが動き出します。"; return; }
+    var words = ["", "ごく弱く", "弱く", "ふつう", "強め", "いちばん強く"];
+    demoStat.innerHTML = "接続中… <b>" + words[v] + "</b>／相手が停止すると、すぐ止まります。";
+  }
+  sw.addEventListener("click", function () {
+    on = !on;
+    sw.classList.toggle("on", on);
+    paint();
+  });
+  str.addEventListener("input", paint);
+  paint();
+
+  /* ── ライブ人数 ── */
+  var live = document.getElementById("liveCount");
+  var base = 120 + Math.floor(Math.random() * 20);
+  live.textContent = base;
+  setInterval(function () {
+    base += Math.random() > 0.5 ? 1 : -1;
+    if (base < 96) base = 96;
+    if (base > 168) base = 168;
+    live.textContent = base;
+  }, 4200);
+
+  /* ── アプリ内ブラウザ警告 ── */
+  var inappEl = document.getElementById("inapp");
+  var iaToast = document.getElementById("iaToast");
+
+  function openInApp(force) {
+    /* force = true : DL ボタン経由。あとで不可・外側タップでも閉じない */
+    inappEl.dataset.force = force ? "1" : "";
+    var later = document.getElementById("iaLater");
+    if (later) later.style.display = force ? "none" : "";
+    inappEl.classList.add("on");
+    document.body.style.overflow = "hidden";
+  }
+  function closeInApp() {
+    inappEl.classList.remove("on");
+    document.body.style.overflow = "";
+    inappEl.dataset.force = "";
+  }
+  function iaCopyLink() {
+    var url = location.href;
+    function ok() { iaToast.textContent = "リンクをコピーしました"; }
+    function fallback() {
+      var t = document.createElement("textarea");
+      t.value = url;
+      t.setAttribute("readonly", "");
+      t.style.position = "fixed";
+      t.style.top = "-1000px";
+      document.body.appendChild(t);
+      t.select();
+      try { document.execCommand("copy"); ok(); }
+      catch (e) { iaToast.textContent = "コピーできませんでした。URL を長押しで選択してください。"; }
+      t.remove();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(ok).catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+  function iaOpenExternal() {
+    var url = location.href;
+    iaToast.textContent = "";
+    if (isAndroid) {
+      location.href = "intent://" + url.replace(/^https?:\/\//, "") +
+        "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" +
+        encodeURIComponent(url) + ";end";
+    } else {
+      iaCopyLink();
+      return;
+    }
+    setTimeout(function () {
+      if (iaToast) iaToast.textContent = "開かない場合は「リンクをコピー」をお試しください";
+    }, 1300);
+  }
+  document.getElementById("iaOpen").onclick = iaOpenExternal;
+  document.getElementById("iaCopy").onclick = iaCopyLink;
+  var iaLaterBtn = document.getElementById("iaLater");
+  if (iaLaterBtn) iaLaterBtn.onclick = closeInApp;
+  inappEl.addEventListener("click", function (e) {
+    /* 強制モードでは外側タップでも閉じない */
+    if (e.target === inappEl && inappEl.dataset.force !== "1") closeInApp();
+  });
+
+  /* ── ダウンロード ── */
+  function showSavedSheet() {
+    openSheet({
+      title: "保存しました",
+      body: "通知、またはファイルアプリから app-latest.apk を開いてください。\n\n「有害な可能性のあるアプリ」と表示されたら、「詳細」→「インストールする」で進めます。",
+      cta: "わかりました",
+      action: "close",
+      hideClose: true
+    });
+  }
+
+  function progressOn(btn) {
+    var label = btn.dataset.label || btn.textContent;
+    btn.dataset.label = label;
+    btn.disabled = true;
+    btn.textContent = "ダウンロード中 0%";
+    var pct = 0;
+    var t = setInterval(function () {
+      pct = Math.min(95, pct + Math.random() * 7);
+      btn.textContent = "ダウンロード中 " + Math.round(pct) + "%";
+      if (pct >= 95) clearInterval(t);
+    }, 180);
+    return function done() {
+      clearInterval(t);
+      btn.textContent = "保存しました";
+      setTimeout(function () { btn.textContent = label; btn.disabled = false; }, 3500);
+      showSavedSheet();
+    };
+  }
+
+  function startDownload(btn) {
+    if (!btn) return;
+    if (inApp) {
+      openInApp(true);
+      return;
+    }
+    if (isAndroid && androidVer && androidVer < 8) {
+      alert("Android 8.0以上が必要です。現在：" + androidVer);
+      return;
+    }
+    if (btn.disabled) return;
+    var done = progressOn(btn);
+    fetch(DL, { cache: "no-store" }).then(function (res) {
+      if (!res.ok) throw new Error("http " + res.status);
+      if (!res.body || !res.body.getReader) throw new Error("no stream");
+      var total = +res.headers.get("content-length") || 0, got = 0, chunks = [];
+      var reader = res.body.getReader();
+      (function pump() {
+        reader.read().then(function (r) {
+          if (r.done) {
+            var blob = new Blob(chunks, { type: "application/vnd.android.package-archive" });
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(blob); a.download = "app-latest.apk";
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 60000);
+            done();
+            return;
+          }
+          chunks.push(r.value); got += r.value.length;
+          if (total) btn.textContent = "ダウンロード中 " + Math.min(99, Math.round(got / total * 100)) + "%";
+          pump();
+        }).catch(fallback);
+      })();
+    }).catch(fallback);
+
+    function fallback() {
+      btn.textContent = "ダウンロード中…";
+      setTimeout(function () { location.href = DL; done(); }, 1100);
+    }
+  }
+
+  /* ダウンロード入口はページ下部の固定ボタン 1 つだけ */
+  var dlBtn = document.getElementById("dl3");
+  if (dlBtn) dlBtn.addEventListener("click", function () { openDownloadFlow(); });
+
+  /* ── 入場 ── */
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+  } else {
+    document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("visible"); });
+  }
+})();
+</script>
+</body>
+</html>

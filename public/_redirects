@@ -1,0 +1,14 @@
+﻿# 安全页短路径（Cloudflare 会把 /safe.html 308 到 /safe，这里显式接管）
+/safe   /safe.html   200
+
+# ┌─ public/_redirects ───────────────────────────────────────────────────────
+# │ 短链 302：把 /dl/app-latest.apk 指到你的真实 APK 地址
+# │ 换 APK 域名 → 只改这里的 YOUR_HOST，前端不用动
+# │ 格式：<来源> <目标> <状态码>
+# └───────────────────────────────────────────────────────────────
+# APK 站内短链 → 你的真实下载地址（替换 YOUR_HOST）
+/dl/app-latest.apk   https://YOUR_HOST/app-latest.apk   302
+
+# 投放用的短链，便于分渠道统计
+/download            /dl/app-latest.apk                 302
+/go/line             https://line.me/R/ti/p/@your_line   302
