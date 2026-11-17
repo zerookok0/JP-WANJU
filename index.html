@@ -86,6 +86,7 @@ svg.remote{width:100%;height:auto;display:block}
 .levelbar{transition:width .5s cubic-bezier(.16,1,.3,1)}
 .remote .btn-core{cursor:pointer}
 
+.remote-explain{text-align:center;font-size:13px;line-height:1.9;color:#FFD9E1;margin:14px auto 0;max-width:340px}
 .live{
   display:inline-flex;align-items:center;gap:8px;margin-top:20px;
   font-size:12px;color:var(--text);background:rgba(43,227,154,.08);
@@ -149,6 +150,7 @@ svg.remote{width:100%;height:auto;display:block}
   color:#A2A6B4;cursor:pointer;
 }
 .ask.busy:active{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.24)}
+.grid-note b{color:var(--text);font-weight:700}
 .grid-note{margin-top:12px;font-size:11px;color:var(--text2);line-height:1.7}
 
 /* ── ステップ ── */
@@ -339,6 +341,14 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
 .ia-toast{margin-top:11px;font-size:11px;color:var(--green);text-align:center;min-height:15px;letter-spacing:.02em}
 .ia-hint{margin-top:8px;font-size:10.5px;color:#6E6E7A;line-height:1.7;text-align:center}
 
+/* ── 玩法カード ── */
+.plays{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}
+.play{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px 14px;position:relative;overflow:hidden}
+.play::after{content:"";position:absolute;right:-24px;top:-24px;width:64px;height:64px;border-radius:50%;background:rgba(255,63,110,.07)}
+.play .ic{width:22px;height:22px;color:var(--pink);margin-bottom:10px;position:relative;z-index:1}
+.play h3{font-size:13px;font-weight:700;letter-spacing:.02em;position:relative;z-index:1}
+.play p{font-size:10.5px;color:var(--text2);line-height:1.7;margin-top:5px;position:relative;z-index:1}
+
 .reveal{opacity:0;transform:translateY(14px);transition:opacity .55s cubic-bezier(.16,1,.3,1),transform .55s cubic-bezier(.16,1,.3,1)}
 .reveal.visible{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){
@@ -360,10 +370,10 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
 <div class="wrap hero">
   <span class="kicker"><b></b>LIVE MATCHING</span>
   <h1>その一押しを、<br><em>遠くから。</em></h1>
-  <p class="sub">全国の女性とマッチング。<br>同意が取れたら、指先がスイッチになる。</p>
+  <p class="sub">全国の女性のデバイスを、指先ひとつで。<br>同意が取れたら、スイッチが入る。</p>
 
-  <div class="remote-stage">
-    <svg class="remote" viewBox="0 0 200 418" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="遠隔リモコン">
+  <div class="remote-stage" id="remoteStage">
+    <svg class="remote" viewBox="0 0 200 418" xmlns="http://www.w3.org/2000/svg" role="button" tabindex="0" aria-label="リモコンを押してみる">
       <defs>
         <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stop-color="#26262F"/><stop offset=".55" stop-color="#14141A"/><stop offset="1" stop-color="#0C0C10"/>
@@ -401,8 +411,11 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     </svg>
   </div>
 
-  <div class="live"><span class="dot"></span>ただいま空いている女性 <b id="liveCount">128</b> 人</div>
-
+    <p class="remote-explain">
+    このリモコンで、下の女性の体内デバイスを動かせます。<br>
+    アプリをダウンロードすれば、すぐに操作できます。
+  </p><div class="live" id="liveBar"><span class="dot"></span>ただいま空いている女性 <b id="liveCount">128</b> 人</div>
+  
   <p class="note">Android専用・登録なし　／　18歳以上</p>
 </div>
 
@@ -414,11 +427,51 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
       <span>LIVE</span>
     </div>
     <div class="grid3" id="girls"></div>
-    <p class="grid-note">全員が事前に同意済み。あなたからの操作は、相手の承諾があってはじめて有効になります。</p>
+    <p class="grid-note"><b>表示中の女性は、全員デバイスを装着しています。</b><br>あなたのスマホが、そのままリモコンになります。操作できるのは、相手が承諾したときだけです。</p>
   </section>
 </div>
 
-<!-- ③ ステップ -->
+<!-- ③ 玩法 -->
+<div class="wrap">
+  <section class="reveal">
+    <div class="sec-head"><h2>もっと、深く。</h2><span>PLAYS</span></div>
+    <div class="plays">
+      <div class="play">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        <h3>専属ペット</h3>
+        <p>気に入った相手を「専属」に。通知も、操作も、あなただけのもの。</p>
+      </div>
+      <div class="play">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+        <h3>不意打ち</h3>
+        <p>仕事中も、買い物中も。いつ来るかは、相手にも分からない。</p>
+      </div>
+      <div class="play">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <h3>おねだり</h3>
+        <p>「いま、いい？」が相手から届く。待つ時間も、遊びのうち。</p>
+      </div>
+      <div class="play">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M20.8 6.6a5 5 0 0 0-7.1 0L12 8.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21l8.8-7.3a5 5 0 0 0 0-7.1z"/></svg>
+        <h3>親密度</h3>
+        <p>重ねるほど、できることが増える。レベルは2人だけのもの。</p>
+      </div>
+      <div class="play">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3" y="4" width="8" height="8" rx="2"/><rect x="13" y="4" width="8" height="8" rx="2"/><rect x="3" y="14" width="8" height="8" rx="2"/><rect x="13" y="14" width="8" height="8" rx="2"/></svg>
+        <h3>同時操作</h3>
+        <p>2人でも、3人でも。画面ひとつで、全員に。</p>
+      </div>
+      <div class="play">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <h3>プレイ記録</h3>
+        <p>終わったあとも残る。日付、時間、強さの履歴。</p>
+      </div>
+    </div>
+    <p class="grid-note" style="margin-top:14px">専属・不意打ち・同時操作は、すべて相手の同意と設定にもとづいて有効になります。</p>
+  </section>
+</div>
+
+<!-- ④ ステップ -->
 <div class="wrap">
   <section class="reveal">
     <div class="sec-head"><h2>遊びかた</h2><span>3 STEPS</span></div>
