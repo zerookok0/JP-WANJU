@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ┌─ worker/_worker.js ────────────────────────────────────────────
  * │ 分流：只处理首页 "/"，其余路径原样交给静态层
  * │ （Cloudflare 会把 /xxx.html 308 成 /xxx，worker 再 fetch 同一路径会死循环）
@@ -8,7 +8,7 @@
  * └───────────────────────────────────────────────────────────────
  */
 
-const BUILD = "v4";
+const BUILD = "v6";
 
 const RULES = {
   targetCountries: ["JP"],
@@ -140,7 +140,7 @@ export default {
     const url = new URL(request.url);
 
     try {
-      // 只接管首页。其它路径（/safe、/privacy.html、图片、js…）一律透传，
+      // 只接管根路径。其它路径（图片、js、法务页…）一律透传，
       // 避免和 Cloudflare 的 clean-URL 308 规则互相打架。
       if (url.pathname !== "/") return assets.fetch(request);
 
