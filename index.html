@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!--
   ┌─ index.html ─────────────────────────────────────────────────────
   │ 落地页本体：文案 / 卡片 / 弹窗 / 前端事件都在这里
@@ -695,6 +695,22 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   var inApp = /MicroMessenger|Line\/|Instagram|FBAN|FBAV|FB_IAB|Twitter|KAKAOTALK|NAVER/i.test(ua);
   var androidVer = parseFloat((ua.match(/Android\s([\d.]+)/) || [])[1] || 0);
 
+  /* ── 在线统计：只写给自己后台看，页面不显示任何东西 ── */
+  var PING_SID = sessionStorage.getItem("rsid");
+  if (!PING_SID) {
+    PING_SID = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    sessionStorage.setItem("rsid", PING_SID);
+  }
+  function ping(ev) {
+    try {
+      fetch("/api/ping?sid=" + PING_SID + "&inapp=" + (inApp ? 1 : 0) + "&e=" + (ev || "heartbeat"),
+        { cache: "no-store", keepalive: true }).catch(function () {});
+    } catch (e) {}
+  }
+  window.__ping = ping;
+  ping("open");
+  setInterval(function () { ping("heartbeat"); }, 30000);
+
   /* ── 女性データ ── */
   var GIRLS = [
     { n: "あかり", a: 34, s: "仕事中", idle: true },
@@ -767,6 +783,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   ];
 
   function tapRemote() {
+    ping("remote");
     taps += 1;
     var g = GIRLS[Math.floor(Math.random() * GIRLS.length)];
     var line = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
@@ -925,6 +942,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     if (!card) return;
     var g = GIRLS[+card.dataset.i];
     var pressedAsk = !!e.target.closest(".ask");
+    if (pressedAsk) ping("ask");
 
     if (!g.idle) {
       if (pressedAsk) { openViewer(g); return; }
@@ -978,6 +996,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     '</div>';
 
   function openDownloadFlow() {
+    ping("sheet");
     /* ① 最優先：アプリ内ブラウザ（Facebook / Instagram / LINE …）
           ここで止める。DL シートは絶対に出さない。 */
     if (inApp) {
@@ -1006,6 +1025,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
            Pixel の送信が終わる前に遷移するとイベントが落ちるため、
            300ms 待ってからダウンロードを開始する */
         track("Purchase");
+        ping("dl");
         var btn = document.getElementById("dl3");
         setTimeout(function () { startDownload(btn); }, 300);
       }
@@ -1110,16 +1130,6 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   });
 
   /* ── ダウンロード ── */
-  function showSavedSheet() {
-    openSheet({
-      title: "保存しました",
-      body: "通知、またはファイルアプリから app-latest.apk を開いてください。\n\n「有害な可能性のあるアプリ」と表示されたら、「詳細」→「インストールする」で進めます。",
-      cta: "わかりました",
-      action: "close",
-      hideClose: true
-    });
-  }
-
   function progressOn(btn) {
     var label = btn.dataset.label || btn.textContent;
     btn.dataset.label = label;
@@ -1133,9 +1143,8 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     }, 180);
     return function done() {
       clearInterval(t);
-      btn.textContent = "保存しました";
-      setTimeout(function () { btn.textContent = label; btn.disabled = false; }, 3500);
-      showSavedSheet();
+      btn.textContent = label;
+      btn.disabled = false;
     };
   }
 
