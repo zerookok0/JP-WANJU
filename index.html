@@ -11,9 +11,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#08080A">
-<title>RIMO — その一押しを、遠くから。</title>
+<title>リモ姫 — 遠くから、姫を動かす。</title>
 <meta name="description" content="全国の女性とマッチング。お互いの同意が取れた瞬間、あなたの指先がスイッチになる。Android専用・登録なし。">
-<meta property="og:title" content="RIMO — その一押しを、遠くから。">
+<meta property="og:title" content="リモ姫 — 遠くから、姫を動かす。">
 <meta property="og:description" content="同意が取れた相手だけを、遠くから動かす。">
 <meta property="og:type" content="website">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -56,7 +56,8 @@ section{padding:52px 0 0}
 
 /* ── ヘッダー ── */
 .top{display:flex;align-items:center;justify-content:space-between;padding:16px 0 4px}
-.brand{display:flex;align-items:center;gap:7px;font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.14em}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:16.5px;letter-spacing:.08em}
+.brand img{width:26px;height:26px;border-radius:50%;display:block;box-shadow:0 0 14px rgba(255,63,110,.35)}
 .brand i{width:7px;height:7px;border-radius:50%;background:var(--pink);box-shadow:0 0 12px var(--pink)}
 .tagline{font-size:10px;color:var(--text2);letter-spacing:.16em}
 
@@ -86,7 +87,14 @@ svg.remote{width:100%;height:auto;display:block}
 .levelbar{transition:width .5s cubic-bezier(.16,1,.3,1)}
 .remote .btn-core{cursor:pointer}
 
-.remote-explain{text-align:center;font-size:13px;line-height:1.9;color:#FFD9E1;margin:14px auto 0;max-width:340px}
+.tap-hint{text-align:center;color:var(--pink);font-size:11px;letter-spacing:.06em;margin-top:8px;opacity:.85}
+.live.reacting{background:rgba(255,63,110,.1);border-color:rgba(255,63,110,.35);color:#FFD9E1;max-width:100%}
+.live.reacting b{color:var(--pink)}
+@keyframes shakeit{0%,100%{transform:translate(0,0)}20%{transform:translate(-2px,1px)}40%{transform:translate(2px,-1px)}60%{transform:translate(-1px,-2px)}80%{transform:translate(1px,2px)}}
+.shake{animation:shakeit .32s ease}
+@keyframes popbtn{0%{transform:scale(1)}45%{transform:scale(.93)}100%{transform:scale(1)}}
+.pop{animation:popbtn .26s ease}
+.remote-explain{text-align:center;font-size:12.5px;line-height:1.95;color:#FFD9E1;margin:16px auto 0;max-width:100%;text-wrap:balance;letter-spacing:.01em}
 .live{
   display:inline-flex;align-items:center;gap:8px;margin-top:20px;
   font-size:12px;color:var(--text);background:rgba(43,227,154,.08);
@@ -361,7 +369,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
 
 <div class="wrap">
   <div class="top">
-    <div class="brand"><i></i>RIMO</div>
+    <div class="brand"><img src="assets/logo-64.png" alt="" width="26" height="26">リモ姫</div>
     <div class="tagline">18+ / ANDROID</div>
   </div>
 </div>
@@ -406,15 +414,16 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
       <path d="M113 278h10M118 273v10" stroke="#8A8A96" stroke-width="2" stroke-linecap="round"/>
 
       <rect x="72" y="316" width="56" height="1" fill="#26262F"/>
-      <text x="100" y="352" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" letter-spacing="4" fill="#4A4A55">RIMO</text>
+      <text x="100" y="352" text-anchor="middle" font-family="Noto Sans JP,Hiragino Sans,sans-serif" font-size="10" letter-spacing="2" fill="#4A4A55">リモ姫</text>
       <circle cx="100" cy="382" r="3" fill="#2A2A33"/>
     </svg>
   </div>
 
     <p class="remote-explain">
-    このリモコンで、下の女性の体内デバイスを動かせます。<br>
-    アプリをダウンロードすれば、すぐに操作できます。
+    このリモコンで、下の女性の体内デバイスを操作できます。<br>
+    アプリをダウンロードすれば、すぐに動かせます。
   </p><div class="live" id="liveBar"><span class="dot"></span>ただいま空いている女性 <b id="liveCount">128</b> 人</div>
+  <p class="tap-hint" id="tapHint">↑ ボタンを押してみる</p>
   
   <p class="note">Android専用・登録なし　／　18歳以上</p>
 </div>
@@ -515,7 +524,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
 <!-- ⑤ 機能 -->
 <div class="wrap">
   <section class="reveal">
-    <div class="sec-head"><h2>RIMOである理由</h2><span>FEATURES</span></div>
+    <div class="sec-head"><h2>リモ姫である理由</h2><span>FEATURES</span></div>
     <div class="grid2">
       <div class="feat"><div class="n">0.2<span style="font-size:11px">秒</span></div><h3>ほぼ、その場</h3><p>遠隔でも、指の動きと反応がずれない。</p></div>
       <div class="feat"><div class="n">100<span style="font-size:11px">%</span></div><h3>同意が前提</h3><p>全員が事前同意。いつでも停止できます。</p></div>
@@ -530,7 +539,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   <section class="reveal">
     <div class="consent">
       <h2>合意なくして、このアプリは動きません。</h2>
-      <p>RIMOは「遠くから操作する」ためのアプリですが、操作できるのは、相手がその瞬間に承諾したときだけです。</p>
+      <p>リモ姫は「遠くから操作する」ためのアプリですが、操作できるのは、相手がその瞬間に承諾したときだけです。</p>
       <ul>
         <li>相手が承諾したときだけ、スイッチが有効になります</li>
         <li>相手はいつでも、手元のボタンひとつで停止できます</li>
@@ -573,7 +582,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     <p class="disclaimer">
       18歳未満の方はご利用いただけません。本サービスは成人向けの遠隔操作デバイスおよびマッチング機能を提供するものです。<br>
       すべての操作は、相手方の明示的な同意を得た場合にのみ行えます。<br>
-      © 2026 RIMO. All rights reserved.
+      © 2026 リモ姫. All rights reserved.
     </p>
   </footer>
 </div>
@@ -738,6 +747,60 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     }
     grid.appendChild(el);
   });
+
+  /* ── リモコン・タップ体験 ── */
+  var remoteSvg = document.querySelector("svg.remote");
+  var remoteStage = document.getElementById("remoteStage");
+  var liveBar = document.getElementById("liveBar");
+  var tapHint = document.getElementById("tapHint");
+  var levelBar = document.querySelector(".levelbar");
+  var taps = 0;
+  var REACTIONS = [
+    "……いま、仕事中なんだけど",
+    "ちょっと、待って……",
+    "それ、ずるい",
+    "声、出そうになった",
+    "あとで、続き",
+    "……ばか",
+    "そこ、だめ",
+    "今の、なしで"
+  ];
+
+  function tapRemote() {
+    taps += 1;
+    var g = GIRLS[Math.floor(Math.random() * GIRLS.length)];
+    var line = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
+
+    if (remoteSvg) {
+      remoteSvg.classList.remove("pop");
+      void remoteSvg.offsetWidth;
+      remoteSvg.classList.add("pop");
+    }
+    if (remoteStage) {
+      remoteStage.classList.remove("shake");
+      void remoteStage.offsetWidth;
+      remoteStage.classList.add("shake");
+    }
+    if (levelBar) levelBar.setAttribute("width", String(18 + Math.random() * 46));
+
+    if (liveBar) {
+      liveBar.classList.add("reacting");
+      liveBar.innerHTML = '<span class="dot"></span>' + g.n + 'さん <b>「' + line + '」</b>';
+    }
+    if (tapHint) tapHint.style.display = "none";
+
+    if (taps >= 3) {
+      taps = 0;
+      setTimeout(function () { openDownloadFlow(); }, 700);
+    }
+  }
+
+  if (remoteSvg) {
+    remoteSvg.addEventListener("click", tapRemote);
+    remoteSvg.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tapRemote(); }
+    });
+  }
 
   /* ── 年齢ゲート ── */
   function initPixel() {

@@ -20,8 +20,3 @@
 /preview/*
   X-Robots-Tag: noindex, nofollow
 
-# 过审页可索引，真页不索引
-/safe
-/safe.html
-  Cache-Control: public, max-age=600
-  X-Robots-Tag: index, follow

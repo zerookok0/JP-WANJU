@@ -72,8 +72,8 @@ const SAFE_HTML = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIMO — 遠隔デバイスとマッチングのアプリ</title>
-<meta name="description" content="RIMO は、アプリと連動するウェアラブルデバイス、およびパートナーとのマッチング機能を提供するコミュニケーションサービスです。">
+<title>リモ姫 — 遠隔デバイスとマッチングのアプリ</title>
+<meta name="description" content="リモ姫 は、アプリと連動するウェアラブルデバイス、およびパートナーとのマッチング機能を提供するコミュニケーションサービスです。">
 <style>
 :root{--bg:#F6F8FB;--surface:#fff;--text:#0F1B2D;--text2:#5A6B85;--line:rgba(20,40,80,.1);--accent:#1F6FEB}
 *{box-sizing:border-box}
@@ -97,12 +97,12 @@ footer a{color:var(--text2);margin-right:14px}
 <div class="wrap">
 
   <header>
-    <div class="logo"><i></i>RIMO</div>
+    <div class="logo"><i></i>リモ姫</div>
     <div style="font-size:12px;color:var(--text2)">日本国内向け</div>
   </header>
 
   <h1>離れていても、<br>気持ちはつながる。</h1>
-  <p class="lead">RIMO（リモ）は、アプリと連動するウェアラブルデバイスと、パートナーとのマッチング機能を提供するコミュニケーションサービスです。離れた場所にいる相手と、会話を楽しみながら、ゆっくり距離を縮められます。</p>
+  <p class="lead">リモ姫（リモひめ）は、アプリと連動するウェアラブルデバイスと、パートナーとのマッチング機能を提供するコミュニケーションサービスです。離れた場所にいる相手と、会話を楽しみながら、ゆっくり距離を縮められます。</p>
 
   <div class="card">
     <h2>アプリとデバイスが連動</h2>
@@ -126,7 +126,7 @@ footer a{color:var(--text2);margin-right:14px}
     <a href="tokushoho.html">特定商取引法に基づく表記</a>
     <a href="privacy.html">プライバシーポリシー</a>
     <a href="terms.html">利用規約</a>
-    <p>本サービスは18歳以上の方を対象としています。<br>© 2026 RIMO. All rights reserved.</p>
+    <p>本サービスは18歳以上の方を対象としています。<br>© 2026 リモ姫. All rights reserved.</p>
   </footer>
 
 </div>

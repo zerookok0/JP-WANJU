@@ -8,7 +8,7 @@
 window.JP_CONFIG = {
 
   /* ① 品牌 */
-  BRAND: "RIMO",
+  BRAND: "リモ姫",
 
   /* ② APK 下载链接（你现有的外链；也可用站内短链 /dl/app-latest.apk）
       仅面向 Android，无需 iOS 配置 */

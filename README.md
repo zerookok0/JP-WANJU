@@ -1,4 +1,4 @@
-# RIMO · 日本市場向け Android ランディングページ
+# リモ姫 · 日本市場向け Android ランディングページ
 
 遠隔デバイス（リモートバイブ）＋ マッチングアプリのダウンロードページ。
 `npm run build` → `dist/`、Cloudflare Pages にそのまま接続できる構成。
