@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ┌─ worker/_worker.js ────────────────────────────────────────────
  * │ 分流：只处理根路径 "/"，其它路径原样交给静态层
  * │ 安全页 HTML 内嵌在本文件，不依赖任何文件路径
@@ -55,13 +55,16 @@ function readCookie(header, name) {
 }
 
 /* ── D1：建表（首次自动） ── */
+let tableReady = false;
 async function ensureTable(DB) {
+  if (tableReady) return;
   await DB.prepare(
     `CREATE TABLE IF NOT EXISTS live (
        sid TEXT, ts INTEGER, inapp INTEGER, country TEXT, region TEXT, event TEXT, ua TEXT
      )`
   ).run();
   await DB.prepare(`CREATE INDEX IF NOT EXISTS idx_live_ts ON live (ts)`).run();
+  tableReady = true;
 }
 
 /* ── /api/ping ── */
@@ -76,6 +79,7 @@ async function handlePing(request, env, url) {
   if (RULES.blockAgents.test(ua)) return json({ ok: true, skipped: "bot" });
 
   if (!DB) return json({ ok: false, error: "D1 (DB) 未绑定" }, 200);
+  await ensureTable(DB);
 
   const now = Date.now();
   const row = {
@@ -108,6 +112,7 @@ async function handleStats(env, url) {
   const admin = env.ADMIN_TOKEN || DEFAULT_ADMIN_TOKEN;
   if (token !== admin) return json({ ok: false, error: "forbidden" }, 403);
   if (!DB) return json({ ok: false, error: "D1 (DB) 未绑定" }, 200);
+  await ensureTable(DB);
 
   const now = Date.now();
   const since = now - ONLINE_TTL_MS;
@@ -176,7 +181,7 @@ function panelHtml(token) {
 <title>リモ姫 管理</title>
 <style>
 :root{--bg:#0B0D12;--card:#15171E;--line:rgba(255,255,255,.08);--text:#EDEFF4;--dim:#8A8F9C;--pink:#FF3F6E;--green:#2BE39A}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Noto Sans JP",sans-serif;font-size:14px;line-height:1.7;padding:18px}
+*{box-sizing:border-box}body{margin:0 auto;max-width:560px;background:var(--bg);color:var(--text);font-family:-apple-system,"Noto Sans JP",sans-serif;font-size:14px;line-height:1.7;padding:18px}
 h1{font-size:15px;letter-spacing:.08em;color:var(--dim);font-weight:600;margin:0 0 14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
 .big{font-size:44px;font-weight:800;letter-spacing:-.02em;line-height:1.1;color:var(--pink);font-variant-numeric:tabular-nums}
