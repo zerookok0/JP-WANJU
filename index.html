@@ -324,31 +324,6 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
 .vactions .vclose2{flex:0 0 100px;background:var(--surface2);color:var(--text2)}
 .vactions .vgo{background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff}
 
-/* ── アプリ内ブラウザ警告 ── */
-#inapp{position:fixed;inset:0;z-index:130;display:none;place-items:center;padding:20px;
-  background:rgba(0,0,0,.74);backdrop-filter:blur(4px)}
-#inapp.on{display:grid}
-.ia-card{width:100%;max-width:420px;background:#15151C;border:1px solid rgba(255,255,255,.09);
-  border-radius:18px;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.55)}
-.ia-card h3{font-size:16.5px;letter-spacing:.02em}
-.ia-card .lead{margin-top:10px;font-size:12.5px;color:var(--text2);line-height:1.85}
-.ia-steps{margin-top:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.05);
-  border-radius:12px;padding:14px 15px}
-.ia-steps div{font-size:12.5px;line-height:2;color:#C9C9D2}
-.ia-steps div b{color:#FF8AA4}
-.ia-actions{display:flex;gap:9px;margin-top:16px}
-.ia-actions button{flex:1;height:46px;border-radius:11px;border:0;font-size:13px;font-weight:700;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-.ia-actions svg{width:15px;height:15px}
-.ia-open{background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff}
-.ia-copy{background:rgba(255,255,255,.06);color:#C9C9D2;border:1px solid rgba(255,255,255,.1)}
-.ia-later{display:block;width:100%;margin-top:12px;padding:10px 0;border:0;background:none;
-  color:#7C7C8A;font-family:var(--font);font-size:12px;letter-spacing:.02em;cursor:pointer;
-  text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.18)}
-.ia-later:active{color:#A2A6B4}
-.ia-toast{margin-top:11px;font-size:11px;color:var(--green);text-align:center;min-height:15px;letter-spacing:.02em}
-.ia-hint{margin-top:8px;font-size:10.5px;color:#6E6E7A;line-height:1.7;text-align:center}
-
 /* ── 玩法カード ── */
 .plays{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}
 .play{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px 14px;position:relative;overflow:hidden}
@@ -656,35 +631,6 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   </div>
 </div>
 
-<!-- アプリ内ブラウザ警告（Facebook / Instagram / LINE） -->
-<div id="inapp">
-  <div class="ia-card">
-    <h3>ブラウザで開いてください</h3>
-    <p class="lead">Facebook アプリ内では、アプリをダウンロードできません。<br>ブラウザで開くと、そのままダウンロードとインストールに進めます。</p>
-    <div class="ia-steps">
-      <div>1. 右上の「…」（メニュー）をタップ</div>
-      <div>2. <b>「ブラウザで開く」</b>を選ぶ</div>
-    </div>
-    <div class="ia-actions">
-      <button class="ia-open" id="iaOpen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/>
-        </svg>
-        自動で開いてみる
-      </button>
-      <button class="ia-copy" id="iaCopy">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-        </svg>
-        リンクをコピー
-      </button>
-    </div>
-    <button class="ia-later" id="iaLater">あとで（このまま見る）</button>
-    <p class="ia-toast" id="iaToast"></p>
-    <p class="ia-hint">自動で開かない場合は、コピーしたリンクを Chrome に貼り付けてください。</p>
-  </div>
-</div>
-
 <script src="config.js" onerror="window.JP_CONFIG=null"></script>
 <script>
 (function () {
@@ -692,7 +638,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   var DL = CFG.DOWNLOAD_URL || "/dl/app-latest.apk";
   var ua = navigator.userAgent;
   var isAndroid = /Android/i.test(ua);
-  var inApp = /MicroMessenger|Line\/|Instagram|FBAN|FBAV|FB_IAB|Twitter|KAKAOTALK|NAVER/i.test(ua);
+  var inApp = false; /* 内置浏览器不检测 */
   var androidVer = parseFloat((ua.match(/Android\s([\d.]+)/) || [])[1] || 0);
 
   /* ── 在线统计：只写给自己后台看，页面不显示任何东西 ── */
@@ -853,14 +799,12 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     gate.classList.add("on"); document.body.style.overflow = "hidden";
   } else {
     if (gateOn) initPixel();
-    if (inApp) setTimeout(openInApp, 600);
   }
 
   document.getElementById("gateYes").onclick = function () {
     localStorage.setItem("jp_age", "1");
     gate.classList.remove("on"); document.body.style.overflow = "";
     initPixel();
-    if (inApp) setTimeout(openInApp, 400);
   };
   document.getElementById("gateNo").onclick = function () { location.href = "https://www.google.com/"; };
 
@@ -874,8 +818,6 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   var sheetAction = "download";
 
   function openSheet(o) {
-    /* 防御：アプリ内ブラウザでは DL 系シートを一切出さない */
-    if (inApp) { openInApp(true); return; }
     shName.textContent = o.title;
     if (o.status) {
       shStatus.style.display = "";
@@ -989,21 +931,12 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   /* ── ダウンロード確認シート（唯一の DL 入口） ── */
   var DL_SHEET_HTML =
     '<div class="dlwarn">' +
-      '<div class="dlwarn-h">インストール時に警告が出ます</div>' +
-      '<p>Google Play 以外から取得したアプリのため、Android から「有害な可能性のあるアプリ」という警告が表示されます。これは外部アプリすべてに出る標準の警告で、ウイルスではありません。</p>' +
-      '<p class="dlwarn-fix">警告が出たら → <b>「詳細」</b> → <b>「インストールする」</b> を選んでください。</p>' +
+      '<p style="margin-top:0">アプリのダウンロードを開始します。</p>' +
       '<p class="dlwarn-meta">所要時間 約30秒 ／ Android専用 ／ 無料</p>' +
     '</div>';
 
   function openDownloadFlow() {
     ping("sheet");
-    /* ① 最優先：アプリ内ブラウザ（Facebook / Instagram / LINE …）
-          ここで止める。DL シートは絶対に出さない。 */
-    if (inApp) {
-      closeSheet();
-      openInApp(true);
-      return;
-    }
     /* ② Android 以外は案内のみ（本アプリは Android 専用） */
     if (!isAndroid) {
       alert("Android専用アプリです。スマートフォン（Android）でご利用ください。");
@@ -1014,17 +947,18 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
       alert("Android 8.0以上が必要です。現在：" + androidVer);
       return;
     }
-    /* ④ ここから先はローカルブラウザだけ：結帳開始イベント */
+    /* ④ ここから先はローカルブラウザだけ
+       ボタンを押した瞬間に Purchase を送る（シートの2回目は待たない） */
     track("InitiateCheckout");
+    track("Purchase");
     openSheet({
       title: "無料ダウンロード",
       html: DL_SHEET_HTML,
       cta: "ダウンロードする",
       action: function () {
-        /* シート内のダウンロードボタン → 購買イベント
+        /* Purchase はボタンを押した時点で送信済み。ここではダウンロードだけ進める。
            Pixel の送信が終わる前に遷移するとイベントが落ちるため、
            300ms 待ってからダウンロードを開始する */
-        track("Purchase");
         ping("dl");
         var btn = document.getElementById("dl3");
         setTimeout(function () { startDownload(btn); }, 300);
@@ -1067,68 +1001,6 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     live.textContent = base;
   }, 4200);
 
-  /* ── アプリ内ブラウザ警告 ── */
-  var inappEl = document.getElementById("inapp");
-  var iaToast = document.getElementById("iaToast");
-
-  function openInApp(force) {
-    /* force = true : DL ボタン経由。あとで不可・外側タップでも閉じない */
-    inappEl.dataset.force = force ? "1" : "";
-    var later = document.getElementById("iaLater");
-    if (later) later.style.display = force ? "none" : "";
-    inappEl.classList.add("on");
-    document.body.style.overflow = "hidden";
-  }
-  function closeInApp() {
-    inappEl.classList.remove("on");
-    document.body.style.overflow = "";
-    inappEl.dataset.force = "";
-  }
-  function iaCopyLink() {
-    var url = location.href;
-    function ok() { iaToast.textContent = "リンクをコピーしました"; }
-    function fallback() {
-      var t = document.createElement("textarea");
-      t.value = url;
-      t.setAttribute("readonly", "");
-      t.style.position = "fixed";
-      t.style.top = "-1000px";
-      document.body.appendChild(t);
-      t.select();
-      try { document.execCommand("copy"); ok(); }
-      catch (e) { iaToast.textContent = "コピーできませんでした。URL を長押しで選択してください。"; }
-      t.remove();
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(ok).catch(fallback);
-    } else {
-      fallback();
-    }
-  }
-  function iaOpenExternal() {
-    var url = location.href;
-    iaToast.textContent = "";
-    if (isAndroid) {
-      location.href = "intent://" + url.replace(/^https?:\/\//, "") +
-        "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" +
-        encodeURIComponent(url) + ";end";
-    } else {
-      iaCopyLink();
-      return;
-    }
-    setTimeout(function () {
-      if (iaToast) iaToast.textContent = "開かない場合は「リンクをコピー」をお試しください";
-    }, 1300);
-  }
-  document.getElementById("iaOpen").onclick = iaOpenExternal;
-  document.getElementById("iaCopy").onclick = iaCopyLink;
-  var iaLaterBtn = document.getElementById("iaLater");
-  if (iaLaterBtn) iaLaterBtn.onclick = closeInApp;
-  inappEl.addEventListener("click", function (e) {
-    /* 強制モードでは外側タップでも閉じない */
-    if (e.target === inappEl && inappEl.dataset.force !== "1") closeInApp();
-  });
-
   /* ── ダウンロード ── */
   function progressOn(btn) {
     var label = btn.dataset.label || btn.textContent;
@@ -1150,10 +1022,6 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
 
   function startDownload(btn) {
     if (!btn) return;
-    if (inApp) {
-      openInApp(true);
-      return;
-    }
     if (isAndroid && androidVer && androidVer < 8) {
       alert("Android 8.0以上が必要です。現在：" + androidVer);
       return;
