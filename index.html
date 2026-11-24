@@ -10,337 +10,410 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#08080A">
-<title>リモ姫 — 遠くから、姫を動かす。</title>
-<meta name="description" content="全国の女性とマッチング。お互いの同意が取れた瞬間、あなたの指先がスイッチになる。Android専用・登録なし。">
-<meta property="og:title" content="リモ姫 — 遠くから、姫を動かす。">
-<meta property="og:description" content="同意が取れた相手だけを、遠くから動かす。">
+<meta name="theme-color" content="#FFFDFB">
+<title>リモ姫 — 遠くにいても、指先ひとつ。</title>
+<meta name="description" content="リモコン操作も、もっと深い遊びも、ぜんぶアプリの中。新規登録で180分無料。時間が減るのは接続中だけ。Android専用・登録なし。">
+<meta property="og:title" content="リモ姫 — 遠くにいても、指先ひとつ。">
+<meta property="og:description" content="新規登録で180分無料。無料時間は接続中だけ消費されます。">
 <meta property="og:type" content="website">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#08080A;
-  --bg2:#0E0E12;
-  --surface:#14141A;
-  --surface2:#1B1B23;
-  --line:rgba(255,255,255,.08);
-  --text:#F2F2F5;
-  --text2:#8A8A96;
-  --pink:#FF3F6E;
-  --pink-dim:#B0274B;
-  --green:#2BE39A;
-  --radius:16px;
-  --font:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
-  --display:"Zen Kaku Gothic New","Noto Sans JP","Hiragino Sans",sans-serif;
+  --bg:#FFFDFB;
+  --bg2:#FBF6F2;
+  --surface:#FFFFFF;
+  --line:rgba(33,26,30,.10);
+  --line-strong:rgba(33,26,30,.16);
+  --text:#211A1E;
+  --text2:#7C6F76;
+  --text3:#A99CA3;
+  --pink:#F0325A;
+  --pink-soft:#FFE7EC;
+  --pink-line:rgba(240,50,90,.22);
+  --indigo:#2C4A7C;
+  --indigo-soft:#EAF0FA;
+  --gold:#C7A02A;
+  --green:#12A26E;
+  --green-soft:#E4F7EF;
+  --radius:18px;
+  --font:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,-apple-system,sans-serif;
+  --display:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  --shadow:0 2px 4px rgba(33,26,30,.04),0 8px 24px rgba(33,26,30,.06);
+  --shadow-pink:0 8px 28px rgba(240,50,90,.20);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
   background:var(--bg);color:var(--text);font-family:var(--font);
-  font-size:15px;line-height:1.75;letter-spacing:.02em;
+  font-size:15px;line-height:1.8;letter-spacing:.02em;
   overflow-x:hidden;padding-bottom:calc(92px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
 }
+/* 和紙っぽい地紋 + 集中線 */
 body::before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(55% 32% at 50% -4%, rgba(255,63,110,.22), transparent 72%),
-    radial-gradient(40% 26% at 88% 44%, rgba(43,227,154,.07), transparent 70%);
+    radial-gradient(circle at 50% 8%, rgba(240,50,90,.07), transparent 46%),
+    radial-gradient(circle at 88% 32%, rgba(44,74,124,.06), transparent 42%),
+    radial-gradient(circle at 8% 62%, rgba(199,160,42,.05), transparent 40%);
 }
 .wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 18px}
-h1,h2,h3{font-family:var(--display);line-height:1.34;letter-spacing:.035em;margin:0}
+h1,h2,h3{font-family:var(--display);line-height:1.42;letter-spacing:.02em;margin:0;font-weight:800}
 p{margin:0}
-section{padding:52px 0 0}
-.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
-.sec-head h2{font-size:20px;font-weight:700}
-.sec-head span{font-size:11px;color:var(--text2);letter-spacing:.1em;white-space:nowrap}
+section{padding:46px 0 0}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.sec-head h2{font-size:19px;font-weight:800}
+.sec-head span{font-size:10px;color:var(--text3);letter-spacing:.16em;white-space:nowrap}
 
 /* ── ヘッダー ── */
-.top{display:flex;align-items:center;justify-content:space-between;padding:16px 0 4px}
-.brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:16.5px;letter-spacing:.08em}
-.brand img{width:26px;height:26px;border-radius:50%;display:block;box-shadow:0 0 14px rgba(255,63,110,.35)}
-.brand i{width:7px;height:7px;border-radius:50%;background:var(--pink);box-shadow:0 0 12px var(--pink)}
-.tagline{font-size:10px;color:var(--text2);letter-spacing:.16em}
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 0 6px}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:16.5px;letter-spacing:.06em}
+.brand img{width:26px;height:26px;border-radius:50%;display:block;box-shadow:0 0 0 2px #fff,0 3px 10px rgba(240,50,90,.28)}
+.brand i{width:7px;height:7px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 3px var(--pink-soft)}
+.tagline{font-size:10px;color:var(--text3);letter-spacing:.18em}
+
+/* ── 桜の花びら ── */
+.petals{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.petals i{
+  position:absolute;top:-24px;width:9px;height:9px;display:block;
+  background:var(--pink);opacity:.16;border-radius:9px 1px 9px 1px;
+  animation:fall linear infinite;
+}
+@keyframes fall{
+  0%{transform:translateY(-24px) rotate(0deg)}
+  100%{transform:translateY(105vh) rotate(320deg)}
+}
 
 /* ── ヒーロー ── */
-.hero{padding-top:16px;padding-bottom:14px;text-align:center}
+.hero{position:relative;padding-top:14px;padding-bottom:6px;text-align:center}
 .hero .kicker{
-  display:inline-flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.22em;
-  color:var(--pink);border:1px solid rgba(255,63,110,.3);border-radius:999px;padding:5px 12px;
+  display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;letter-spacing:.1em;
+  color:#fff;background:linear-gradient(135deg,#FF6B8A,#F0325A);
+  border-radius:999px;padding:6px 14px;box-shadow:var(--shadow-pink);
 }
-.hero .kicker b{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
-.hero h1{margin-top:18px;font-size:clamp(27px,7.6vw,36px);font-weight:800;line-height:1.28}
-.hero h1 em{font-style:normal;color:var(--pink)}
-.hero .sub{margin-top:12px;color:var(--text2);font-size:13.5px;line-height:1.85}
-
-/* リモコン */
-.remote-stage{position:relative;margin:20px auto 0;width:min(40vw,138px)}
-.remote-stage::before{
-  content:"";position:absolute;inset:-14% -34%;border-radius:50%;
-  background:radial-gradient(closest-side, rgba(255,63,110,.26), transparent 72%);
-  filter:blur(6px);z-index:-1;
+.hero .kicker b{width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.35)}
+.hero h1{margin-top:18px;font-size:clamp(27px,7.8vw,36px);font-weight:800;line-height:1.34;letter-spacing:.01em}
+.hero h1 em{
+  font-style:normal;color:var(--pink);
+  background:linear-gradient(transparent 64%, var(--pink-soft) 64%, var(--pink-soft) 94%, transparent 94%);
+  -webkit-box-decoration-break:clone;box-decoration-break:clone;border-radius:2px;
 }
-svg.remote{width:100%;height:auto;display:block}
-.led{animation:blink 2.4s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:.35}50%{opacity:1}}
-.pulse{transform-origin:100px 158px;animation:pulse 2.6s ease-out infinite}
-@keyframes pulse{0%{transform:scale(.92);opacity:.55}70%{transform:scale(1.22);opacity:0}100%{opacity:0}}
-.levelbar{transition:width .5s cubic-bezier(.16,1,.3,1)}
-.remote .btn-core{cursor:pointer}
+.hero .sub{margin-top:14px;color:var(--text2);font-size:13.5px;line-height:1.95;text-wrap:balance}
 
-.tap-hint{text-align:center;color:var(--pink);font-size:11px;letter-spacing:.06em;margin-top:8px;opacity:.85}
-.live.reacting{background:rgba(255,63,110,.1);border-color:rgba(255,63,110,.35);color:#FFD9E1;max-width:100%}
-.live.reacting b{color:var(--pink)}
-@keyframes shakeit{0%,100%{transform:translate(0,0)}20%{transform:translate(-2px,1px)}40%{transform:translate(2px,-1px)}60%{transform:translate(-1px,-2px)}80%{transform:translate(1px,2px)}}
-.shake{animation:shakeit .32s ease}
-@keyframes popbtn{0%{transform:scale(1)}45%{transform:scale(.93)}100%{transform:scale(1)}}
-.pop{animation:popbtn .26s ease}
-.remote-explain{text-align:center;font-size:12.5px;line-height:1.95;color:#FFD9E1;margin:16px auto 0;max-width:100%;text-wrap:balance;letter-spacing:.01em}
+/* 吹き出し */
+.bubble{
+  position:relative;margin:22px auto 0;max-width:340px;
+  background:var(--surface);border:2px solid var(--text);border-radius:18px;
+  padding:14px 16px;box-shadow:4px 4px 0 rgba(33,26,30,.08);
+  font-size:12.5px;line-height:1.85;text-align:left;color:var(--text);
+}
+.bubble::after{
+  content:"";position:absolute;left:50%;bottom:-11px;margin-left:-9px;
+  width:16px;height:16px;background:var(--surface);
+  border-right:2px solid var(--text);border-bottom:2px solid var(--text);
+  transform:rotate(45deg);border-radius:0 0 4px 0;
+}
+.bubble b{color:var(--pink)}
+
+/* バッジ列 */
+.chips{display:flex;justify-content:center;gap:7px;margin-top:26px;flex-wrap:wrap}
+.chip{
+  display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;
+  padding:5px 11px;border-radius:999px;background:var(--surface);
+  border:1px solid var(--line);color:var(--text2);box-shadow:var(--shadow);
+}
+.chip.hot{background:var(--pink-soft);border-color:var(--pink-line);color:var(--pink)}
+.chip.blue{background:var(--indigo-soft);border-color:rgba(44,74,124,.16);color:var(--indigo)}
+.chip i{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* オンライン表示 */
 .live{
-  display:inline-flex;align-items:center;gap:8px;margin-top:20px;
-  font-size:12px;color:var(--text);background:rgba(43,227,154,.08);
-  border:1px solid rgba(43,227,154,.24);border-radius:999px;padding:7px 14px;
+  display:inline-flex;align-items:center;gap:8px;margin-top:22px;
+  font-size:11.5px;color:var(--text2);background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;padding:7px 15px;box-shadow:var(--shadow);
 }
-.live b{color:var(--green);font-variant-numeric:tabular-nums;font-size:15px;font-weight:700}
+.live b{color:var(--green);font-variant-numeric:tabular-nums;font-size:15px;font-weight:800}
 .live .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.8s infinite}
+@keyframes blink{0%,100%{opacity:.35}50%{opacity:1}}
+.live.reacting{background:var(--pink-soft);border-color:var(--pink-line);color:#9B2440}
+.live.reacting b{color:var(--pink)}
 
-/* ボタン */
+/* ── ボタン ── */
 .cta{
   display:flex;align-items:center;justify-content:center;gap:9px;
-  width:100%;height:56px;margin-top:20px;border:0;border-radius:14px;
-  background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff;
-  font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:.06em;
-  cursor:pointer;box-shadow:0 10px 30px rgba(224,30,79,.28);
+  width:100%;height:56px;margin-top:22px;border:0;border-radius:16px;
+  background:linear-gradient(135deg,#FF6B8A,#EE2350);color:#fff;
+  font-family:var(--display);font-size:17px;font-weight:800;letter-spacing:.05em;
+  cursor:pointer;box-shadow:var(--shadow-pink);
   transition:transform .15s ease,box-shadow .2s ease;
 }
-.cta:active{transform:translateY(1px);box-shadow:0 4px 14px rgba(224,30,79,.24)}
-.cta.ghost{background:transparent;color:var(--text);border:1px solid var(--line);box-shadow:none;height:50px;font-size:15px;font-weight:600}
-.cta[disabled]{opacity:.75}
-.note{text-align:center;color:var(--text2);font-size:11px;margin-top:10px;letter-spacing:.04em}
+.cta:active{transform:translateY(1px) scale(.995);box-shadow:0 3px 12px rgba(240,50,90,.24)}
+.cta[disabled]{opacity:.7}
+.note{text-align:center;color:var(--text3);font-size:10.5px;margin-top:10px;letter-spacing:.04em}
+
+/* ── 180分カード ── */
+.timer-hero{
+  background:linear-gradient(160deg,#FFF4F6,#FFFFFF 62%);
+  border:2px solid var(--text);border-radius:22px;padding:22px 20px;
+  box-shadow:6px 6px 0 rgba(33,26,30,.06);text-align:center;
+}
+.timer-hero .num{
+  font-family:var(--display);font-size:56px;font-weight:800;line-height:1;color:var(--pink);
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+}
+.timer-hero .num small{font-size:18px;font-weight:800;margin-left:4px;color:var(--text)}
+.timer-hero .cap{margin-top:10px;font-size:12.5px;color:var(--text2)}
+.timer-hero .cap b{color:var(--text)}
+.why{display:grid;gap:10px;margin-top:14px}
+.why > div{
+  display:flex;gap:11px;align-items:flex-start;text-align:left;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 14px;
+  box-shadow:var(--shadow);
+}
+.why > div > div{flex:1 1 auto;min-width:0}
+.why .ic{
+  flex:0 0 auto;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;
+  background:var(--pink-soft);color:var(--pink);font-size:13px;font-weight:800;
+}
+.why .ic.b{background:var(--indigo-soft);color:var(--indigo)}
+.why .ic.g{background:var(--green-soft);color:var(--green)}
+.why h3{font-size:13px;font-weight:800;line-height:1.5}
+.why p{font-size:11.5px;color:var(--text2);line-height:1.75;margin-top:2px}
+
+/* ── アプリでできること ── */
+.plays{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+.play{
+  background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:15px 14px;
+  position:relative;overflow:hidden;box-shadow:var(--shadow);
+}
+.play::after{
+  content:"";position:absolute;right:-26px;top:-26px;width:70px;height:70px;border-radius:50%;
+  background:var(--pink-soft);opacity:.7;
+}
+.play .ic{width:22px;height:22px;color:var(--pink);margin-bottom:10px;position:relative;z-index:1}
+.play h3{font-size:12.5px;font-weight:800;position:relative;z-index:1}
+.play p{font-size:10.5px;color:var(--text2);line-height:1.7;margin-top:5px;position:relative;z-index:1}
 
 /* ── 女性グリッド ── */
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.grid-label{
+  display:flex;align-items:center;gap:8px;justify-content:center;
+  margin-bottom:12px;font-size:11px;font-weight:800;color:var(--indigo);
+  background:var(--indigo-soft);border:1px solid rgba(44,74,124,.14);
+  border-radius:10px;padding:8px 12px;letter-spacing:.04em;
+}
+.grid-label svg{width:13px;height:13px;flex:0 0 auto}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .girl{
-  position:relative;border-radius:13px;overflow:hidden;background:var(--surface);
-  border:1px solid var(--line);cursor:pointer;
-  transition:transform .18s ease,border-color .2s ease;
+  position:relative;border-radius:14px;overflow:hidden;background:var(--surface);
+  border:1px solid var(--line);cursor:pointer;box-shadow:var(--shadow);
+  transition:transform .18s ease,box-shadow .2s ease;
 }
 .girl:active{transform:scale(.975)}
-.girl .ph{position:relative;aspect-ratio:3/4;background:
-  linear-gradient(160deg,#2A1E28,#16121A 60%,#0F0D12);overflow:hidden}
+.girl .ph{position:relative;aspect-ratio:3/4;background:linear-gradient(160deg,#F3EDEA,#EAE2DE);overflow:hidden}
 .girl .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.girl .sil{position:absolute;inset:auto 0 0 0;width:100%;height:78%;fill:rgba(255,255,255,.075);z-index:0}
-.girl .ph img+z?{}
+.girl .sil{position:absolute;inset:auto 0 0 0;width:100%;height:78%;fill:rgba(33,26,30,.10);z-index:0}
 .badge{
-  position:absolute;top:6px;right:6px;z-index:2;
-  display:inline-flex;align-items:center;gap:4px;
-  font-size:8.5px;font-weight:700;letter-spacing:.04em;
-  padding:3px 6px;border-radius:5px;backdrop-filter:blur(6px);
+  position:absolute;top:5px;right:5px;z-index:2;
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:8px;font-weight:800;letter-spacing:.02em;
+  padding:3px 6px;border-radius:6px;backdrop-filter:blur(6px);
 }
-.badge i{width:4.5px;height:4.5px;border-radius:50%}
-.badge--idle{background:rgba(43,227,154,.16);color:var(--green);border:1px solid rgba(43,227,154,.34)}
-.badge--idle i{background:var(--green);box-shadow:0 0 6px var(--green)}
-.badge--busy{background:rgba(255,63,110,.16);color:var(--pink);border:1px solid rgba(255,63,110,.34)}
+.badge i{width:4px;height:4px;border-radius:50%}
+.badge--idle{background:rgba(255,255,255,.92);color:var(--green);border:1px solid rgba(18,162,110,.35)}
+.badge--idle i{background:var(--green);box-shadow:0 0 5px var(--green)}
+.badge--busy{background:rgba(255,255,255,.92);color:var(--pink);border:1px solid var(--pink-line)}
 .badge--busy i{background:var(--pink)}
-.girl .meta{padding:7px 8px 9px}
-.girl .nm{font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.girl .nm small{font-weight:400;color:var(--text2);font-size:10px;margin-left:3px}
-.girl .sc{font-size:9.5px;color:var(--text2);line-height:1.5;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.girl .meta{padding:7px 8px 8px}
+.girl .nm{font-size:11.5px;font-weight:800;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.girl .sc{font-size:9px;color:var(--text2);line-height:1.5;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ask{
-  display:block;width:100%;margin-top:7px;padding:6px 0;
-  border-radius:8px;border:1px solid rgba(255,63,110,.42);
-  background:rgba(255,63,110,.13);color:#FF8AA4;
-  font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:.02em;
+  display:block;width:100%;margin-top:6px;padding:6px 0;
+  border-radius:9px;border:1px solid var(--pink-line);
+  background:var(--pink-soft);color:var(--pink);
+  font-family:var(--font);font-size:9.5px;font-weight:800;letter-spacing:.01em;
   cursor:pointer;transition:background .18s ease,border-color .18s ease;
 }
-.ask:active{background:rgba(255,63,110,.24)}
-.ask.busy{
-  border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.05);
-  color:#A2A6B4;cursor:pointer;
-}
-.ask.busy:active{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.24)}
-.grid-note b{color:var(--text);font-weight:700}
-.grid-note{margin-top:12px;font-size:11px;color:var(--text2);line-height:1.7}
+.ask:active{background:#FFD5DE}
+.ask.busy{border-color:var(--line-strong);background:#F6F2F0;color:var(--text3)}
+.ask.busy:active{background:#EFEAE7}
+.grid-note b{color:var(--text);font-weight:800}
+.grid-note{margin-top:12px;font-size:10.5px;color:var(--text2);line-height:1.75}
 
 /* ── ステップ ── */
 .steps{counter-reset:s;margin:0;padding:0;list-style:none}
-.steps li{counter-increment:s;position:relative;padding:0 0 22px 44px}
+.steps li{counter-increment:s;position:relative;padding:0 0 20px 44px}
 .steps li::before{
-  content:counter(s);position:absolute;left:0;top:1px;width:27px;height:27px;
+  content:counter(s);position:absolute;left:0;top:2px;width:27px;height:27px;
   display:grid;place-items:center;border-radius:50%;
-  background:rgba(255,63,110,.12);color:var(--pink);font-size:12px;font-weight:700;
+  background:var(--pink-soft);color:var(--pink);font-size:12px;font-weight:800;
+  border:1px solid var(--pink-line);
 }
-.steps li::after{content:"";position:absolute;left:13px;top:31px;bottom:6px;width:1px;background:var(--line)}
+.steps li::after{content:"";position:absolute;left:13px;top:32px;bottom:6px;width:1px;background:var(--line-strong)}
 .steps li:last-child::after{display:none}
-.steps b{display:block;font-size:15px;margin-bottom:3px;letter-spacing:.02em}
-.steps p{font-size:12.5px;color:var(--text2);line-height:1.72}
+.steps b{display:block;font-size:14.5px;margin-bottom:2px;font-weight:800}
+.steps p{font-size:12px;color:var(--text2);line-height:1.75}
 
 /* ── デモ ── */
-.demo{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.demo{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
 .demo .row{display:flex;align-items:center;justify-content:space-between;margin-top:16px}
-.demo .lbl{font-size:11px;color:var(--text2);letter-spacing:.1em}
+.demo .lbl{font-size:10px;color:var(--text3);letter-spacing:.16em;font-weight:700}
 .switch{
-  position:relative;width:64px;height:34px;border-radius:999px;border:1px solid var(--line);
-  background:var(--surface2);cursor:pointer;transition:background .25s ease,border-color .25s;
+  position:relative;width:64px;height:34px;border-radius:999px;border:1px solid var(--line-strong);
+  background:#EFEAE7;cursor:pointer;transition:background .25s ease,border-color .25s;
 }
 .switch::after{
   content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;
-  background:#4A4A55;transition:transform .28s cubic-bezier(.16,1,.3,1),background .25s;
+  background:#fff;box-shadow:0 1px 3px rgba(33,26,30,.18);
+  transition:transform .28s cubic-bezier(.16,1,.3,1),background .25s;
 }
-.switch.on{background:rgba(255,63,110,.2);border-color:rgba(255,63,110,.5)}
-.switch.on::after{transform:translateX(30px);background:var(--pink);box-shadow:0 0 14px var(--pink)}
-.demo .stat{font-size:12px;color:var(--text2);margin-top:14px;min-height:20px}
-.demo .stat b{color:var(--pink)}
+.switch.on{background:var(--pink-soft);border-color:var(--pink-line)}
+.switch.on::after{transform:translateX(30px);background:var(--pink);box-shadow:0 2px 8px rgba(240,50,90,.4)}
+.demo .stat{font-size:11.5px;color:var(--text2);margin-top:14px;min-height:20px}
+.demo .stat b{color:var(--pink);font-weight:800}
 input[type=range]{
-  -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;
-  background:var(--surface2);outline:none;margin-top:8px;
+  -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:5px;
+  background:#EFEAE7;outline:none;margin-top:10px;
 }
 input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
-  background:var(--pink);box-shadow:0 0 12px rgba(255,63,110,.6);cursor:pointer;
+  -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:var(--pink);box-shadow:0 2px 8px rgba(240,50,90,.45);cursor:pointer;border:2px solid #fff;
 }
-.demo-hint{font-size:10.5px;color:var(--text2);margin-top:12px}
+.demo-hint{font-size:10px;color:var(--text3);margin-top:12px;line-height:1.7}
 
 /* ── 機能 ── */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.feat{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:15px}
-.feat .n{font-family:var(--display);font-size:19px;font-weight:800;color:var(--pink);letter-spacing:.02em}
-.feat h3{font-size:13px;margin-top:6px;font-weight:700}
-.feat p{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.65}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.feat .n{font-family:var(--display);font-size:19px;font-weight:800;color:var(--pink);letter-spacing:.01em}
+.feat h3{font-size:12.5px;margin-top:6px;font-weight:800}
+.feat p{font-size:10.5px;color:var(--text2);margin-top:4px;line-height:1.65}
 
 /* ── 同意 ── */
-.consent{border:1px solid rgba(43,227,154,.22);background:rgba(43,227,154,.045);border-radius:var(--radius);padding:20px}
-.consent h2{font-size:17px;color:var(--green)}
-.consent p{margin-top:10px;font-size:12.5px;color:#C9C9D2;line-height:1.8}
-.consent ul{margin:12px 0 0;padding-left:16px;color:var(--text2);font-size:12px;line-height:1.9}
+.consent{border:1px solid rgba(18,162,110,.24);background:linear-gradient(160deg,#F2FCF8,#FFFFFF 70%);border-radius:var(--radius);padding:20px}
+.consent h2{font-size:16.5px;color:#0E7D57}
+.consent p{margin-top:10px;font-size:12px;color:#5D6B66;line-height:1.85}
+.consent ul{margin:12px 0 0;padding-left:16px;color:var(--text2);font-size:11.5px;line-height:1.95}
+.consent li::marker{color:var(--green)}
 
 /* ── 最終CTA ── */
 .final{text-align:center;padding-bottom:8px}
-.final h2{font-size:22px;line-height:1.45}
-.final .sub{margin-top:10px;color:var(--text2);font-size:12.5px}
+.final h2{font-size:21px;line-height:1.5}
+.final .sub{margin-top:10px;color:var(--text2);font-size:12px}
 
 /* ── フッター ── */
-footer.legal{padding:34px 0 24px;color:var(--text2);font-size:11px;line-height:2.1}
-footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid var(--line);margin-right:12px}
-.disclaimer{margin-top:14px;color:#61616C}
+footer.legal{padding:32px 0 24px;color:var(--text3);font-size:10.5px;line-height:2.1}
+footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid var(--line);margin-right:12px;display:inline-block}
+.disclaimer{margin-top:14px;color:#B3A7AD}
 
 /* ── 固定バー ── */
 .bar{
   position:fixed;left:0;right:0;bottom:0;z-index:30;
   padding:10px 18px calc(10px + env(safe-area-inset-bottom));
-  background:rgba(8,8,10,.94);backdrop-filter:blur(14px);border-top:1px solid var(--line);
+  background:rgba(255,253,251,.94);backdrop-filter:blur(14px);border-top:1px solid var(--line);
 }
 .bar .inner{max-width:480px;margin:0 auto;display:flex;gap:9px;align-items:center}
-.bar .cta{margin:0;height:50px;font-size:16px}
-.bar .mini{flex:0 0 auto;font-size:10px;color:var(--text2);line-height:1.4;text-align:center}
+.bar .cta{margin:0;height:52px;font-size:16px}
+.bar .mini{flex:0 0 auto;font-size:9.5px;color:var(--text3);line-height:1.35;text-align:center;font-weight:800}
 
 /* ── 年齢ゲート ── */
-#gate{position:fixed;inset:0;z-index:100;display:none;place-items:center;background:rgba(4,4,6,.97);padding:24px;text-align:center}
+#gate{position:fixed;inset:0;z-index:100;display:none;place-items:center;background:rgba(255,253,251,.98);padding:24px;text-align:center}
 #gate.on{display:grid}
-#gate h2{font-size:19px}
-#gate p{color:var(--text2);font-size:12.5px;margin-top:12px;line-height:1.9}
-#gate .row{display:flex;gap:9px;margin-top:22px;width:100%;max-width:320px}
-#gate button{flex:1;height:50px;border-radius:12px;border:0;font-size:15px;font-weight:700;cursor:pointer}
-#gate .yes{background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff}
-#gate .no{background:transparent;color:var(--text2);border:1px solid var(--line)}
+#gate .gbox{max-width:340px;background:var(--surface);border:2px solid var(--text);border-radius:22px;padding:26px 22px;box-shadow:6px 6px 0 rgba(33,26,30,.07)}
+#gate h2{font-size:18px}
+#gate p{color:var(--text2);font-size:12px;margin-top:12px;line-height:1.9}
+#gate .row{display:flex;gap:9px;margin-top:22px}
+#gate button{flex:1;height:50px;border-radius:14px;border:0;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--display)}
+#gate .yes{background:linear-gradient(135deg,#FF6B8A,#EE2350);color:#fff;box-shadow:var(--shadow-pink)}
+#gate .no{background:#F6F2F0;color:var(--text2);border:1px solid var(--line-strong)}
 
 /* ── シート ── */
-#sheet{position:fixed;inset:0;z-index:110;display:none;align-items:flex-end;background:rgba(0,0,0,.66)}
+#sheet{position:fixed;inset:0;z-index:110;display:none;align-items:flex-end;background:rgba(33,26,30,.42)}
 #sheet.on{display:flex}
-#sheet .panel{width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto;border-top:1px solid var(--line)}
+#sheet .panel{width:100%;background:var(--surface);border-radius:24px 24px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto;border-top:1px solid var(--line);box-shadow:0 -8px 30px rgba(33,26,30,.10)}
 #sheet .ttl{display:flex;align-items:center;gap:10px}
 #sheet .ttl h3{font-size:16px}
-#sheet .st{font-size:10px;padding:2px 7px;border-radius:5px;white-space:nowrap;font-weight:700}
-#sheet .st.idle{background:rgba(43,227,154,.16);color:var(--green);border:1px solid rgba(43,227,154,.34)}
-#sheet .st.busy{background:rgba(255,63,110,.16);color:var(--pink);border:1px solid rgba(255,63,110,.34)}
-#sheet .sh-body{color:var(--text2);font-size:12.5px;margin-top:12px;white-space:pre-line;line-height:1.8}
-
-/* ── Play プロテクト警告の再現 ── */
-.mock{background:#1E1E24;border:1px solid #30303A;border-radius:12px;padding:14px;margin-top:12px}
-.mock .m-top{font-size:9.5px;color:#8A8A96;letter-spacing:.1em}
-.mock .m-title{font-size:13px;font-weight:700;color:#F2F2F5;margin-top:8px;line-height:1.55}
-.mock .m-note{font-size:10.5px;color:#8A8A96;margin-top:6px;line-height:1.65}
-.mock .m-btns{display:flex;gap:8px;margin-top:12px}
-.mock .m-btn{flex:1;text-align:center;font-size:11px;padding:7px 0;border-radius:8px;background:#26262E;color:#C9C9D2}
-.mock .m-btn.primary{background:rgba(43,227,154,.16);color:var(--green);border:1px solid rgba(43,227,154,.35)}
-.warnbox{background:rgba(255,63,110,.05);border:1px solid rgba(255,63,110,.22);border-radius:14px;padding:16px;margin-bottom:20px}
-.warnbox h3{font-size:13.5px;color:#FF8AA4;display:flex;align-items:center;gap:6px}
-.warnbox h3 svg{width:15px;height:15px;flex:0 0 auto}
-.warnbox p{font-size:11.5px;color:var(--text2);line-height:1.8;margin-top:8px}
-.warnbox .fix{margin-top:10px;font-size:11.5px;color:#C9C9D2;line-height:1.9}
-.warnbox .fix b{color:var(--text)}
-
-/* ダウンロード確認シート */
-.dlwarn-h{font-size:13px;font-weight:700;color:#FF8AA4;margin-bottom:8px}
-.dlwarn p{font-size:12px;color:#B9B9C4;line-height:1.85;margin-top:8px}
-.dlwarn .dlwarn-fix{color:#F2F2F5;margin-top:12px}
-.dlwarn .dlwarn-fix b{color:#FF8AA4}
-.dlwarn .dlwarn-meta{margin-top:12px;font-size:10.5px;color:#6E6E7A;letter-spacing:.02em}
+#sheet .st{font-size:9.5px;padding:2px 8px;border-radius:6px;white-space:nowrap;font-weight:800}
+#sheet .st.idle{background:var(--green-soft);color:var(--green);border:1px solid rgba(18,162,110,.28)}
+#sheet .st.busy{background:var(--pink-soft);color:var(--pink);border:1px solid var(--pink-line)}
+#sheet .sh-body{color:var(--text2);font-size:12.5px;margin-top:12px;white-space:pre-line;line-height:1.85}
 #sheet .actions{display:flex;gap:9px;margin-top:18px}
-#sheet button{flex:1;height:48px;border-radius:12px;border:0;font-size:14px;font-weight:700;cursor:pointer}
-#sheet .close{background:var(--surface2);color:var(--text2);flex:0 0 92px}
-#sheet .go{background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff}
+#sheet button{flex:1;height:50px;border-radius:14px;border:0;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--display)}
+#sheet .close{background:#F6F2F0;color:var(--text2);flex:0 0 92px;border:1px solid var(--line-strong)}
+#sheet .go{background:linear-gradient(135deg,#FF6B8A,#EE2350);color:#fff;box-shadow:var(--shadow-pink)}
+
+/* ダウンロード確認 */
+.dlwarn-h{font-size:13px;font-weight:800;color:var(--pink);margin-bottom:8px}
+.dlwarn p{font-size:12px;color:var(--text2);line-height:1.85;margin-top:6px}
+.dlwarn .dlwarn-fix{color:var(--text);margin-top:10px}
+.dlwarn .dlwarn-fix b{color:var(--pink)}
+.dlwarn .dlwarn-meta{margin-top:12px;font-size:10px;color:var(--text3);letter-spacing:.02em}
 
 /* ── 覗き見ビューア（閲覧のみ） ── */
-#viewer{position:fixed;inset:0;z-index:120;display:none;background:#06060A;overflow-y:auto}
+#viewer{position:fixed;inset:0;z-index:120;display:none;background:#FFFDFB;overflow-y:auto}
 #viewer.on{display:block}
 #viewer .vwrap{max-width:480px;margin:0 auto;padding:16px 18px calc(24px + env(safe-area-inset-bottom))}
 .vhead{display:flex;align-items:center;gap:9px;padding:6px 0 14px}
-.vname{font-family:var(--display);font-size:14px;font-weight:700}
-.vrbadge{font-size:9.5px;letter-spacing:.06em;padding:3px 7px;border-radius:5px;
-  background:rgba(255,255,255,.07);color:#A2A6B4;border:1px solid rgba(255,255,255,.14)}
-.vclose{margin-left:auto;width:32px;height:32px;border-radius:50%;border:0;
-  background:rgba(255,255,255,.07);color:var(--text2);font-size:17px;cursor:pointer;line-height:1}
-.vstage{position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;
-  background-color:#1A1119;background-size:cover;background-position:center top;
-  border:1px solid rgba(255,255,255,.07)}
+.vname{font-family:var(--display);font-size:14px;font-weight:800}
+.vrbadge{font-size:9px;letter-spacing:.04em;padding:3px 8px;border-radius:6px;
+  background:#F3EFEC;color:var(--text2);border:1px solid var(--line-strong);font-weight:700}
+.vclose{margin-left:auto;width:34px;height:34px;border-radius:50%;border:1px solid var(--line-strong);
+  background:var(--surface);color:var(--text2);font-size:18px;cursor:pointer;line-height:1}
+.vstage{position:relative;aspect-ratio:3/4;border-radius:18px;overflow:hidden;
+  background-color:#F3EDEA;background-size:cover;background-position:center top;
+  border:2px solid var(--text);box-shadow:5px 5px 0 rgba(33,26,30,.06)}
 .vstage .vsil{position:absolute;left:0;right:0;bottom:0;width:100%;height:88%;
-  fill:rgba(255,255,255,.14);filter:blur(2.5px);transition:opacity .4s ease}
+  fill:rgba(33,26,30,.14);filter:blur(2.5px);transition:opacity .4s ease}
 .vstage::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(180deg, rgba(8,8,12,.35) 0%, rgba(8,8,12,.15) 45%, rgba(6,6,10,.75) 100%);
-  backdrop-filter:blur(3px) saturate(1.15)}
+  background:linear-gradient(180deg,rgba(255,253,251,.18) 0%,rgba(255,253,251,.06) 45%,rgba(33,26,30,.34) 100%);
+  backdrop-filter:blur(3px) saturate(1.05)}
 .vstage::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
-  background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)}
+  background:repeating-linear-gradient(0deg,rgba(33,26,30,.035) 0 1px,transparent 1px 3px)}
 .vstage .vgrain{position:absolute;inset:0;z-index:1;background:
-  radial-gradient(circle at 30% 70%, rgba(255,63,110,.16), transparent 55%),
-  radial-gradient(circle at 72% 34%, rgba(43,227,154,.08), transparent 50%)}
+  radial-gradient(circle at 30% 70%, rgba(240,50,90,.10), transparent 55%),
+  radial-gradient(circle at 72% 34%, rgba(44,74,124,.07), transparent 50%)}
 .vlive{position:absolute;top:10px;left:10px;z-index:3;display:inline-flex;align-items:center;gap:5px;
-  font-size:9px;font-weight:700;letter-spacing:.1em;color:#fff;
-  background:rgba(255,63,110,.9);padding:3px 7px;border-radius:4px}
+  font-size:8.5px;font-weight:800;letter-spacing:.1em;color:#fff;
+  background:var(--pink);padding:3px 8px;border-radius:5px}
 .vlive i{width:4px;height:4px;border-radius:50%;background:#fff;animation:blink 1.4s infinite}
-.vtime{position:absolute;top:10px;right:10px;z-index:3;font-size:9px;letter-spacing:.08em;color:#C9C9D2;
-  background:rgba(0,0,0,.45);padding:3px 7px;border-radius:4px;font-variant-numeric:tabular-nums}
-.vnote{margin-top:16px;font-size:12.5px;color:var(--text2);line-height:1.85}
-.vnote b{color:#C9C9D2}
-.vremote{display:flex;align-items:center;gap:10px;margin-top:16px;padding:12px 14px;
-  background:var(--surface);border:1px solid var(--line);border-radius:12px}
-.vremote .rl{font-size:10px;letter-spacing:.12em;color:var(--text2)}
+.vtime{position:absolute;top:10px;right:10px;z-index:3;font-size:9px;letter-spacing:.06em;color:#fff;
+  background:rgba(33,26,30,.45);padding:3px 8px;border-radius:5px;font-variant-numeric:tabular-nums}
+.vnote{margin-top:16px;font-size:12px;color:var(--text2);line-height:1.85}
+.vnote b{color:var(--text)}
+.vremote{display:flex;align-items:center;gap:10px;margin-top:16px;padding:13px 14px;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.vremote .rl{font-size:9.5px;letter-spacing:.16em;color:var(--text3);font-weight:700}
 .vremote .sw{position:relative;width:46px;height:24px;border-radius:999px;
-  background:#22222A;border:1px solid var(--line);margin-left:auto}
+  background:#EFEAE7;border:1px solid var(--line-strong);margin-left:auto}
 .vremote .sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;
-  border-radius:50%;background:#4A4A55}
-.vremote .lock{font-size:10px;color:#7A7A88;letter-spacing:.04em}
+  border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(33,26,30,.16)}
+.vremote .lock{font-size:9.5px;color:var(--text3);letter-spacing:.04em}
 .vactions{display:flex;gap:9px;margin-top:18px}
-.vactions button{flex:1;height:50px;border-radius:12px;border:0;font-size:14px;font-weight:700;cursor:pointer}
-.vactions .vclose2{flex:0 0 100px;background:var(--surface2);color:var(--text2)}
-.vactions .vgo{background:linear-gradient(135deg,#FF5C82,#E01E4F);color:#fff}
-
-/* ── 玩法カード ── */
-.plays{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}
-.play{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px 14px;position:relative;overflow:hidden}
-.play::after{content:"";position:absolute;right:-24px;top:-24px;width:64px;height:64px;border-radius:50%;background:rgba(255,63,110,.07)}
-.play .ic{width:22px;height:22px;color:var(--pink);margin-bottom:10px;position:relative;z-index:1}
-.play h3{font-size:13px;font-weight:700;letter-spacing:.02em;position:relative;z-index:1}
-.play p{font-size:10.5px;color:var(--text2);line-height:1.7;margin-top:5px;position:relative;z-index:1}
+.vactions button{flex:1;height:50px;border-radius:14px;border:0;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--display)}
+.vactions .vclose2{flex:0 0 100px;background:#F6F2F0;color:var(--text2);border:1px solid var(--line-strong)}
+.vactions .vgo{background:linear-gradient(135deg,#FF6B8A,#EE2350);color:#fff;box-shadow:var(--shadow-pink)}
 
 .reveal{opacity:0;transform:translateY(14px);transition:opacity .55s cubic-bezier(.16,1,.3,1),transform .55s cubic-bezier(.16,1,.3,1)}
 .reveal.visible{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){
   .reveal{opacity:1;transform:none;transition:none}
-  .led,.pulse,.live .dot{animation:none}
+  .petals i,.live .dot,.vlive i{animation:none}
 }
 </style>
 </head>
 <body>
+
+<div class="petals" aria-hidden="true">
+  <i style="left:6%;animation-duration:15s;animation-delay:0s"></i>
+  <i style="left:18%;animation-duration:19s;animation-delay:2s"></i>
+  <i style="left:31%;animation-duration:13s;animation-delay:5s"></i>
+  <i style="left:44%;animation-duration:21s;animation-delay:1s"></i>
+  <i style="left:57%;animation-duration:16s;animation-delay:7s"></i>
+  <i style="left:69%;animation-duration:23s;animation-delay:3s"></i>
+  <i style="left:81%;animation-duration:14s;animation-delay:9s"></i>
+  <i style="left:92%;animation-duration:18s;animation-delay:4s"></i>
+</div>
 
 <div class="wrap">
   <div class="top">
@@ -351,79 +424,80 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
 
 <!-- ① ヒーロー -->
 <div class="wrap hero">
-  <span class="kicker"><b></b>LIVE MATCHING</span>
-  <h1>その一押しを、<br><em>遠くから。</em></h1>
-  <p class="sub">全国の女性のデバイスを、指先ひとつで。<br>同意が取れたら、スイッチが入る。</p>
+  <span class="kicker"><b></b>新規登録で 180分 無料</span>
 
-  <div class="remote-stage" id="remoteStage">
-    <svg class="remote" viewBox="0 0 200 418" xmlns="http://www.w3.org/2000/svg" role="button" tabindex="0" aria-label="リモコンを押してみる">
-      <defs>
-        <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#26262F"/><stop offset=".55" stop-color="#14141A"/><stop offset="1" stop-color="#0C0C10"/>
-        </linearGradient>
-        <radialGradient id="btn" cx=".35" cy=".3" r=".85">
-          <stop offset="0" stop-color="#FF7D9C"/><stop offset=".55" stop-color="#FF3F6E"/><stop offset="1" stop-color="#B0274B"/>
-        </radialGradient>
-        <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#ffffff" stop-opacity=".10"/><stop offset=".35" stop-color="#ffffff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
+  <h1>遠くにいても、<br><em>指先ひとつ。</em></h1>
 
-      <rect x="26" y="6" width="148" height="404" rx="48" fill="url(#body)" stroke="#3A3A46" stroke-width="1"/>
-      <rect x="26" y="6" width="148" height="404" rx="48" fill="url(#gloss)"/>
+  <p class="sub">離れた相手のデバイスを、スマホひとつで。<br>同意が取れた瞬間、あなたの画面がスイッチになります。</p>
 
-      <circle class="led" cx="100" cy="40" r="4.5" fill="#2BE39A"/>
-      <rect x="76" y="57" width="48" height="3" rx="1.5" fill="#2A2A33"/>
-
-      <circle class="pulse" cx="100" cy="158" r="54" fill="none" stroke="#FF3F6E" stroke-width="1.4"/>
-      <circle class="btn-core" cx="100" cy="158" r="46" fill="url(#btn)"/>
-      <circle cx="100" cy="158" r="46" fill="none" stroke="#FF9FB5" stroke-opacity=".5" stroke-width="1"/>
-      <path d="M100 140v36M82 158h36" stroke="#3A0B1B" stroke-width="2.6" stroke-linecap="round" opacity=".55"/>
-
-      <rect x="66" y="232" width="68" height="7" rx="3.5" fill="#1C1C24"/>
-      <rect class="levelbar" x="66" y="232" width="24" height="7" rx="3.5" fill="#FF3F6E"/>
-
-      <circle cx="82" cy="278" r="13" fill="#1B1B23" stroke="#33333D"/>
-      <path d="M77 278h10" stroke="#8A8A96" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="118" cy="278" r="13" fill="#1B1B23" stroke="#33333D"/>
-      <path d="M113 278h10M118 273v10" stroke="#8A8A96" stroke-width="2" stroke-linecap="round"/>
-
-      <rect x="72" y="316" width="56" height="1" fill="#26262F"/>
-      <text x="100" y="352" text-anchor="middle" font-family="Noto Sans JP,Hiragino Sans,sans-serif" font-size="10" letter-spacing="2" fill="#4A4A55">リモ姫</text>
-      <circle cx="100" cy="382" r="3" fill="#2A2A33"/>
-    </svg>
+  <div class="bubble">
+    リモコンの操作も、もっと深い遊びも、<b>ぜんぶアプリの中</b>。<br>
+    このページは、その一部をご紹介しています。
   </div>
 
-    <p class="remote-explain">
-    このリモコンで、下の女性の体内デバイスを操作できます。<br>
-    アプリをダウンロードすれば、すぐに動かせます。
-  </p><div class="live" id="liveBar"><span class="dot"></span>ただいま空いている女性 <b id="liveCount">128</b> 人</div>
-  <p class="tap-hint" id="tapHint">↑ ボタンを押してみる</p>
-  
-  <p class="note">Android専用・登録なし　／　18歳以上</p>
+  <div class="chips">
+    <span class="chip hot"><i></i>180分 無料</span>
+    <span class="chip blue"><i></i>接続中だけ消費</span>
+    <span class="chip"><i></i>登録なし</span>
+  </div>
+
+  <div class="live" id="liveBar"><span class="dot"></span>ただいま空いている女性 <b id="liveCount">128</b> 人</div>
+
+  <p class="note">Android専用　／　18歳以上</p>
 </div>
 
-<!-- ② 女性グリッド -->
+<!-- ② 180分の仕組み -->
 <div class="wrap">
   <section class="reveal">
     <div class="sec-head">
-      <h2>いま、声をかけられる女性</h2>
-      <span>LIVE</span>
+      <h2>はじめての方に、180分。</h2>
+      <span>FREE TIME</span>
     </div>
-    <div class="grid3" id="girls"></div>
-    <p class="grid-note"><b>表示中の女性は、全員デバイスを装着しています。</b><br>あなたのスマホが、そのままリモコンになります。操作できるのは、相手が承諾したときだけです。</p>
+
+    <div class="timer-hero">
+      <div class="num">180<small>分</small></div>
+      <p class="cap">新規登録で、<b>最初の180分が無料</b>です。</p>
+
+      <div class="why">
+        <div>
+          <span class="ic">1</span>
+          <div>
+            <h3>時間が減るのは「つないでいる間」だけ</h3>
+            <p>通話や操作でつながっている間だけ、無料時間が消費されます。</p>
+          </div>
+        </div>
+        <div>
+          <span class="ic b">2</span>
+          <div>
+            <h3>切れば、すぐ止まる</h3>
+            <p>接続を切った瞬間にタイマーは停止。待っている間は1秒も減りません。</p>
+          </div>
+        </div>
+        <div>
+          <span class="ic g">3</span>
+          <div>
+            <h3>戻せば、続きから</h3>
+            <p>またつないだところから再開。残り時間が消えることはありません。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="grid-note" style="text-align:center;margin-top:12px">※ 無料時間の消費は接続中のみです。切断中は減りません。</p>
   </section>
 </div>
 
-<!-- ③ 玩法 -->
+<!-- ③ アプリでできること -->
 <div class="wrap">
   <section class="reveal">
-    <div class="sec-head"><h2>もっと、深く。</h2><span>PLAYS</span></div>
+    <div class="sec-head"><h2>できることは、すべてアプリの中。</h2><span>IN APP</span></div>
+    <p class="grid-note" style="margin-top:0;margin-bottom:2px">リモコン操作・音声・チャット・記録は、アプリを入れてはじめて使えます。</p>
+
     <div class="plays">
       <div class="play">
         <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-        <h3>専属ペット</h3>
-        <p>気に入った相手を「専属」に。通知も、操作も、あなただけのもの。</p>
+        <h3>リモコン操作</h3>
+        <p>強さも、リズムも、指先ひとつで遠くから。</p>
       </div>
       <div class="play">
         <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
@@ -431,8 +505,8 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
         <p>仕事中も、買い物中も。いつ来るかは、相手にも分からない。</p>
       </div>
       <div class="play">
-        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-        <h3>おねだり</h3>
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <h3>チャット・音声</h3>
         <p>「いま、いい？」が相手から届く。待つ時間も、遊びのうち。</p>
       </div>
       <div class="play">
@@ -451,11 +525,35 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
         <p>終わったあとも残る。日付、時間、強さの履歴。</p>
       </div>
     </div>
+
     <p class="grid-note" style="margin-top:14px">専属・不意打ち・同時操作は、すべて相手の同意と設定にもとづいて有効になります。</p>
   </section>
 </div>
 
-<!-- ④ ステップ -->
+<!-- ④ 女性グリッド -->
+<div class="wrap">
+  <section class="reveal">
+    <div class="grid-label">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>
+      ソフトウェア機能の一部をご紹介
+    </div>
+
+    <div class="sec-head">
+      <h2>いま、声をかけられる女性</h2>
+      <span>LIVE</span>
+    </div>
+
+    <div class="grid3" id="girls"></div>
+
+    <p class="grid-note">
+      <b>表示中の女性は、全員デバイスを装着しています。</b><br>
+      あなたのスマホが、そのままリモコンになります。操作できるのは、相手が承諾したときだけです。
+    </p>
+    <p class="grid-note" style="color:var(--text3)">※ 掲載している画像はイメージです。実際の機能はアプリ内でご確認ください。</p>
+  </section>
+</div>
+
+<!-- ⑤ ステップ -->
 <div class="wrap">
   <section class="reveal">
     <div class="sec-head"><h2>遊びかた</h2><span>3 STEPS</span></div>
@@ -470,13 +568,13 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
       </li>
       <li>
         <b>同意が取れたら、スイッチが入る</b>
-        <p>相手が承諾した瞬間、あなたの画面のスイッチが有効になります。強さも、リズムも、遠くから。</p>
+        <p>相手が承諾した瞬間、あなたの画面のスイッチが有効になります。強さも、リズムも、遠くから。ここから先の操作はアプリで。</p>
       </li>
     </ol>
   </section>
 </div>
 
-<!-- ④ デモ -->
+<!-- ⑥ デモ -->
 <div class="wrap">
   <section class="reveal">
     <div class="sec-head"><h2>スイッチを、ためしてみる</h2><span>DEMO</span></div>
@@ -496,7 +594,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   </section>
 </div>
 
-<!-- ⑤ 機能 -->
+<!-- ⑦ 機能 -->
 <div class="wrap">
   <section class="reveal">
     <div class="sec-head"><h2>リモ姫である理由</h2><span>FEATURES</span></div>
@@ -509,7 +607,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   </section>
 </div>
 
-<!-- ⑥ 同意 -->
+<!-- ⑧ 同意 -->
 <div class="wrap">
   <section class="reveal">
     <div class="consent">
@@ -525,21 +623,20 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   </section>
 </div>
 
-<!-- ⑦ インストール -->
+<!-- ⑨ インストール -->
 <div class="wrap">
   <section class="reveal">
     <div class="sec-head"><h2>インストール方法</h2><span>30秒</span></div>
-
     <ol class="steps">
       <li><b>「ダウンロード」をタップ</b><p>ファイルの保存が始まります。</p></li>
       <li><b>通知、またはファイルアプリから開く</b><p>ダウンロードフォルダに app-latest.apk があります。</p></li>
       <li><b>「提供元不明のアプリ」を許可</b><p>設定 → セキュリティ → 提供元不明のアプリ をON。</p></li>
-      <li><b>「インストール」→「開く」</b><p>数秒で完了します。</p></li>
+      <li><b>「インストール」→「開く」</b><p>数秒で完了します。初回起動で180分が付与されます。</p></li>
     </ol>
   </section>
 </div>
 
-<!-- ⑧ 最終CTA -->
+<!-- ⑩ 最終CTA -->
 <div class="wrap">
   <section class="final reveal">
     <h2>今夜、だれかが<br>空いています。</h2>
@@ -547,7 +644,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   </section>
 </div>
 
-<!-- ⑨ フッター -->
+<!-- ⑪ フッター -->
 <div class="wrap">
   <footer class="legal">
     <a href="tokushoho.html">特定商取引法に基づく表記</a>
@@ -557,6 +654,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     <p class="disclaimer">
       18歳未満の方はご利用いただけません。本サービスは成人向けの遠隔操作デバイスおよびマッチング機能を提供するものです。<br>
       すべての操作は、相手方の明示的な同意を得た場合にのみ行えます。<br>
+      無料時間の消費は接続中のみです。切断中は減りません。<br>
       © 2026 リモ姫. All rights reserved.
     </p>
   </footer>
@@ -572,7 +670,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
 
 <!-- 年齢ゲート -->
 <div id="gate">
-  <div>
+  <div class="gbox">
     <h2>年齢確認</h2>
     <p>このページは成人向けの内容を含みます。<br>18歳以上ですか？</p>
     <div class="row">
@@ -638,7 +736,6 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   var DL = CFG.DOWNLOAD_URL || "/dl/app-latest.apk";
   var ua = navigator.userAgent;
   var isAndroid = /Android/i.test(ua);
-  var inApp = false; /* 内置浏览器不检测 */
   var androidVer = parseFloat((ua.match(/Android\s([\d.]+)/) || [])[1] || 0);
 
   /* ── 在线统计：只写给自己后台看，页面不显示任何东西 ── */
@@ -649,7 +746,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   }
   function ping(ev) {
     try {
-      fetch("/api/ping?sid=" + PING_SID + "&inapp=" + (inApp ? 1 : 0) + "&e=" + (ev || "heartbeat"),
+      fetch("/api/ping?sid=" + PING_SID + "&inapp=0&e=" + (ev || "heartbeat"),
         { cache: "no-store", keepalive: true }).catch(function () {});
     } catch (e) {}
   }
@@ -710,60 +807,8 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     grid.appendChild(el);
   });
 
-  /* ── リモコン・タップ体験 ── */
-  var remoteSvg = document.querySelector("svg.remote");
-  var remoteStage = document.getElementById("remoteStage");
+  /* ── ライブ表示（カードの反応のみ） ── */
   var liveBar = document.getElementById("liveBar");
-  var tapHint = document.getElementById("tapHint");
-  var levelBar = document.querySelector(".levelbar");
-  var taps = 0;
-  var REACTIONS = [
-    "……いま、仕事中なんだけど",
-    "ちょっと、待って……",
-    "それ、ずるい",
-    "声、出そうになった",
-    "あとで、続き",
-    "……ばか",
-    "そこ、だめ",
-    "今の、なしで"
-  ];
-
-  function tapRemote() {
-    ping("remote");
-    taps += 1;
-    var g = GIRLS[Math.floor(Math.random() * GIRLS.length)];
-    var line = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
-
-    if (remoteSvg) {
-      remoteSvg.classList.remove("pop");
-      void remoteSvg.offsetWidth;
-      remoteSvg.classList.add("pop");
-    }
-    if (remoteStage) {
-      remoteStage.classList.remove("shake");
-      void remoteStage.offsetWidth;
-      remoteStage.classList.add("shake");
-    }
-    if (levelBar) levelBar.setAttribute("width", String(18 + Math.random() * 46));
-
-    if (liveBar) {
-      liveBar.classList.add("reacting");
-      liveBar.innerHTML = '<span class="dot"></span>' + g.n + 'さん <b>「' + line + '」</b>';
-    }
-    if (tapHint) tapHint.style.display = "none";
-
-    if (taps >= 3) {
-      taps = 0;
-      setTimeout(function () { openDownloadFlow(); }, 700);
-    }
-  }
-
-  if (remoteSvg) {
-    remoteSvg.addEventListener("click", tapRemote);
-    remoteSvg.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tapRemote(); }
-    });
-  }
 
   /* ── 年齢ゲート ── */
   function initPixel() {
@@ -778,7 +823,7 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   }
   /* イベント送信
      InitiateCheckout = 無料ボタン押下（結帳開始）
-     Purchase         = シート内のダウンロード押下（購買）
+     Purchase         = 同じ押下で即送信（購買）
      ※ 実課金がない場合は value / currency を 0 / JPY のままにしておく */
   var DEBUG = /[?&]debug=1/.test(location.search);
 
@@ -797,8 +842,8 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   var gateOn = CFG.AGE_GATE !== false;
   if (gateOn && !localStorage.getItem("jp_age")) {
     gate.classList.add("on"); document.body.style.overflow = "hidden";
-  } else {
-    if (gateOn) initPixel();
+  } else if (gateOn) {
+    initPixel();
   }
 
   document.getElementById("gateYes").onclick = function () {
@@ -813,7 +858,6 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   var shName = document.getElementById("shName");
   var shStatus = document.getElementById("shStatus");
   var shBody = document.getElementById("shBody");
-
   var shGo = document.getElementById("shGo");
   var sheetAction = "download";
 
@@ -845,7 +889,6 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
     var sec = 0;
     el.textContent = "00:00";
 
-    /* 相手の写真を背景に敷く（無ければシルエット） */
     var stage = document.querySelector(".vstage");
     var sil = stage.querySelector(".vsil");
     var idx = GIRLS.indexOf(g) + 1;
@@ -931,24 +974,24 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   /* ── ダウンロード確認シート（唯一の DL 入口） ── */
   var DL_SHEET_HTML =
     '<div class="dlwarn">' +
-      '<p style="margin-top:0">アプリのダウンロードを開始します。</p>' +
+      '<div class="dlwarn-h">アプリのダウンロードを開始します</div>' +
+      '<p>Android 専用のアプリです。インストール後、初回起動で 180分 の無料時間が付与されます。</p>' +
       '<p class="dlwarn-meta">所要時間 約30秒 ／ Android専用 ／ 無料</p>' +
     '</div>';
 
   function openDownloadFlow() {
     ping("sheet");
-    /* ② Android 以外は案内のみ（本アプリは Android 専用） */
+    /* ① Android 以外は案内のみ（本アプリは Android 専用） */
     if (!isAndroid) {
       alert("Android専用アプリです。スマートフォン（Android）でご利用ください。");
       return;
     }
-    /* ③ Android 8.0 未満 */
+    /* ② Android 8.0 未満 */
     if (isAndroid && androidVer && androidVer < 8) {
       alert("Android 8.0以上が必要です。現在：" + androidVer);
       return;
     }
-    /* ④ ここから先はローカルブラウザだけ
-       ボタンを押した瞬間に Purchase を送る（シートの2回目は待たない） */
+    /* ③ ボタンを押した瞬間に Purchase を送る（シートの2回目は待たない） */
     track("InitiateCheckout");
     track("Purchase");
     openSheet({
@@ -971,13 +1014,11 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   var str = document.getElementById("str");
   var strVal = document.getElementById("strVal");
   var demoStat = document.getElementById("demoStat");
-  var bar = document.querySelector(".levelbar");
   var on = false;
 
   function paint() {
     var v = +str.value;
     strVal.textContent = v + " / 5";
-    if (bar) bar.setAttribute("width", String(10 + v * 9));
     if (!on) { demoStat.innerHTML = "待機中。マッチングすると、ここが動き出します。"; return; }
     var words = ["", "ごく弱く", "弱く", "ふつう", "強め", "いちばん強く"];
     demoStat.innerHTML = "接続中… <b>" + words[v] + "</b>／相手が停止すると、すぐ止まります。";
