@@ -258,7 +258,7 @@ function load(){
     $("vis").textContent = fmt(d.visits);
 
     var e = d.events || {};
-    var order = [["open","着地"],["remote","リモコン操作"],["ask","同意ボタン"],["sheet","DLシート"],["dl","ダウンロード実行"],["heartbeat","心拍"]];
+    var order = [["open","着地"],["ask","同意ボタン"],["sheet","DLシート"],["dl","ダウンロード実行"],["heartbeat","心拍"]];
     var html = "";
     order.forEach(function(p){
       if(e[p[0]]!==undefined && p[0]!=="heartbeat") html += "<tr><td>"+p[1]+"</td><td class='mono'>"+e[p[0]]+"</td></tr>";

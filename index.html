@@ -154,34 +154,36 @@ section{padding:46px 0 0}
 .cta[disabled]{opacity:.7}
 .note{text-align:center;color:var(--text3);font-size:10.5px;margin-top:10px;letter-spacing:.04em}
 
-/* ── 180分カード ── */
-.timer-hero{
-  background:linear-gradient(160deg,#FFF4F6,#FFFFFF 62%);
-  border:2px solid var(--text);border-radius:22px;padding:22px 20px;
-  box-shadow:6px 6px 0 rgba(33,26,30,.06);text-align:center;
-}
-.timer-hero .num{
-  font-family:var(--display);font-size:56px;font-weight:800;line-height:1;color:var(--pink);
-  letter-spacing:-.02em;font-variant-numeric:tabular-nums;
-}
-.timer-hero .num small{font-size:18px;font-weight:800;margin-left:4px;color:var(--text)}
-.timer-hero .cap{margin-top:10px;font-size:12.5px;color:var(--text2)}
-.timer-hero .cap b{color:var(--text)}
-.why{display:grid;gap:10px;margin-top:14px}
-.why > div{
-  display:flex;gap:11px;align-items:flex-start;text-align:left;
-  background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 14px;
+/* ── これは何か（ダウンロードするもの） ── */
+.whatis{display:grid;gap:9px;margin-top:14px}
+.wi{
+  display:flex;gap:12px;align-items:flex-start;
+  background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;
   box-shadow:var(--shadow);
 }
-.why > div > div{flex:1 1 auto;min-width:0}
-.why .ic{
-  flex:0 0 auto;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;
-  background:var(--pink-soft);color:var(--pink);font-size:13px;font-weight:800;
+.wi-n{
+  flex:0 0 auto;font-family:var(--display);font-size:11.5px;font-weight:800;
+  color:var(--pink);background:var(--pink-soft);border-radius:9px;padding:6px 8px;line-height:1;letter-spacing:.02em;
 }
-.why .ic.b{background:var(--indigo-soft);color:var(--indigo)}
-.why .ic.g{background:var(--green-soft);color:var(--green)}
-.why h3{font-size:13px;font-weight:800;line-height:1.5}
-.why p{font-size:11.5px;color:var(--text2);line-height:1.75;margin-top:2px}
+.wi-b{flex:1 1 auto;min-width:0}
+.wi-b h3{font-size:13px;font-weight:800;line-height:1.5}
+.wi-b p{font-size:11px;color:var(--text2);line-height:1.78;margin-top:4px}
+
+.freetime{
+  margin-top:14px;display:flex;gap:14px;align-items:center;
+  background:linear-gradient(135deg,#FFF4F6,#FFFFFF 72%);
+  border:2px solid var(--text);border-radius:20px;padding:16px;
+  box-shadow:5px 5px 0 rgba(33,26,30,.06);
+}
+.ft-num{
+  flex:0 0 auto;font-family:var(--display);font-size:38px;font-weight:800;
+  color:var(--pink);line-height:1;font-variant-numeric:tabular-nums;
+}
+.ft-num small{font-size:13px;color:var(--text);margin-left:2px;font-weight:800}
+.ft-body{flex:1 1 auto;min-width:0}
+.ft-body b{font-size:12px;font-weight:800;display:block;line-height:1.5}
+.ft-body ul{margin:6px 0 0;padding-left:15px;color:var(--text2);font-size:10.5px;line-height:1.85}
+.ft-body li::marker{color:var(--pink)}
 
 /* ── アプリでできること ── */
 .plays{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
@@ -446,43 +448,60 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
   <p class="note">Android専用　／　18歳以上</p>
 </div>
 
-<!-- ② 180分の仕組み -->
+<!-- ② これは何か（ダウンロードするもの） -->
 <div class="wrap">
   <section class="reveal">
     <div class="sec-head">
-      <h2>はじめての方に、180分。</h2>
-      <span>FREE TIME</span>
+      <h2>ダウンロードするのは、これです。</h2>
+      <span>WHAT IS THIS</span>
     </div>
+    <p class="grid-note" style="margin-top:0">
+      このページに登場する女性パートナーは、全員「同じ受信端末」を身につけています。<br>
+      アプリを入れると、あなたのスマホがその端末のリモコンになります。
+    </p>
 
-    <div class="timer-hero">
-      <div class="num">180<small>分</small></div>
-      <p class="cap">新規登録で、<b>最初の180分が無料</b>です。</p>
-
-      <div class="why">
-        <div>
-          <span class="ic">1</span>
-          <div>
-            <h3>時間が減るのは「つないでいる間」だけ</h3>
-            <p>通話や操作でつながっている間だけ、無料時間が消費されます。</p>
-          </div>
+    <div class="whatis">
+      <div class="wi">
+        <span class="wi-n">01</span>
+        <div class="wi-b">
+          <h3>相手は、受信端末を装着しています</h3>
+          <p>掲載している女性パートナーは全員、同じ受信端末（おもちゃ）を身につけています。写真はそのイメージです。</p>
         </div>
-        <div>
-          <span class="ic b">2</span>
-          <div>
-            <h3>切れば、すぐ止まる</h3>
-            <p>接続を切った瞬間にタイマーは停止。待っている間は1秒も減りません。</p>
-          </div>
+      </div>
+      <div class="wi">
+        <span class="wi-n">02</span>
+        <div class="wi-b">
+          <h3>アプリが、バーチャルリモコンになる</h3>
+          <p>ダウンロードは無料。インストールした瞬間から、スマホが遠隔リモコンになります。</p>
         </div>
-        <div>
-          <span class="ic g">3</span>
-          <div>
-            <h3>戻せば、続きから</h3>
-            <p>またつないだところから再開。残り時間が消えることはありません。</p>
-          </div>
+      </div>
+      <div class="wi">
+        <span class="wi-n">03</span>
+        <div class="wi-b">
+          <h3>話して、専属ペアリング</h3>
+          <p>気になる相手とやり取りして、同意が取れたら「専属」のペアに。あなたの画面だけが、その端末につながります。</p>
+        </div>
+      </div>
+      <div class="wi">
+        <span class="wi-n">04</span>
+        <div class="wi-b">
+          <h3>距離を越えて、リアルタイムで</h3>
+          <p>振動の強さも、リズムも、届くのは「いま」。離れていても、その場にいるように操作できます。</p>
         </div>
       </div>
     </div>
 
+    <div class="freetime">
+      <div class="ft-num">180<small>分</small></div>
+      <div class="ft-body">
+        <b>新規登録で、最初の180分が無料</b>
+        <ul>
+          <li>無料時間が減るのは、つないでいる間だけ</li>
+          <li>接続を切れば、その瞬間に停止</li>
+          <li>またつなげば、続きから再開</li>
+        </ul>
+      </div>
+    </div>
     <p class="grid-note" style="text-align:center;margin-top:12px">※ 無料時間の消費は接続中のみです。切断中は減りません。</p>
   </section>
 </div>
@@ -620,19 +639,6 @@ footer.legal a{color:var(--text2);text-decoration:none;border-bottom:1px solid v
         <li>会話と操作ログは暗号化して保存されます</li>
       </ul>
     </div>
-  </section>
-</div>
-
-<!-- ⑨ インストール -->
-<div class="wrap">
-  <section class="reveal">
-    <div class="sec-head"><h2>インストール方法</h2><span>30秒</span></div>
-    <ol class="steps">
-      <li><b>「ダウンロード」をタップ</b><p>ファイルの保存が始まります。</p></li>
-      <li><b>通知、またはファイルアプリから開く</b><p>ダウンロードフォルダに app-latest.apk があります。</p></li>
-      <li><b>「提供元不明のアプリ」を許可</b><p>設定 → セキュリティ → 提供元不明のアプリ をON。</p></li>
-      <li><b>「インストール」→「開く」</b><p>数秒で完了します。初回起動で180分が付与されます。</p></li>
-    </ol>
   </section>
 </div>
 
